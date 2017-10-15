@@ -45,7 +45,7 @@ public class FRParser extends Parser {
         Vector<String[]> result = null;
         FileWriter fw = null;
         ArrayList<String> file_list = new ArrayList<String>();
-        String FRPath = Path.Data_Path + "raw/TREC4/FR94/";
+        String FRPath = Path.Data_Path + "/raw/TREC4/FR94/";
         File fs = new File(FRPath);
         String[] list = fs.list();
 
@@ -62,7 +62,7 @@ public class FRParser extends Parser {
             result = parser.getParsedResult();
             for (String[] k : result) {
                 System.out.println(k[0]);
-                fw = new FileWriter(Path.Data_Path + "raw_parsed/" + k[0]);
+                fw = new FileWriter(Path.Data_Path + "/raw_parsed/" + k[0]);
                 fw.write(k[1]);
                 //System.out.println(k[1]);
                 //System.out.println(k[2]);

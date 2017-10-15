@@ -2,7 +2,9 @@ package TRECParser;
 
 public class Path {
     public static String Project_Path = System.getProperty("user.dir");
-    public static String Data_Path = System.getProperty("user.dir") + "/TREC/";
+    // /Users/zlsun/IdeaProjects/Information-Retrieval
+    public static String Data_Path = System.getProperty("user.dir") + "/TREC";
+    // /Users/zlsun/IdeaProjects/Information-Retrieval/TREC
 
 
     public static void main(String[] args) {

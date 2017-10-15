@@ -43,7 +43,7 @@ public class FTParser extends Parser {
         Vector<String[]> result = null;
         FileWriter fw = null;
         ArrayList<String> file_list = new ArrayList<String>();
-        String FTPath = Path.Data_Path + "raw/TREC4/FT/";
+        String FTPath = Path.Data_Path + "/raw/TREC4/FT/";
         File fs = new File(FTPath);
         String[] list = fs.list();
 
@@ -61,7 +61,7 @@ public class FTParser extends Parser {
             result = parser.getParsedResult();
             for (String[] k : result) {
                 System.out.println(k[0]);
-                fw = new FileWriter(Path.Data_Path + "raw_parsed/" + k[0]);
+                fw = new FileWriter(Path.Data_Path + "/raw_parsed/" + k[0]);
                 fw.write(k[1] + "\r\n" + k[2]);
                 //System.out.println(k[1]);
                 //System.out.println(k[2]);

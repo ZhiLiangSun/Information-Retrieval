@@ -46,7 +46,7 @@ public class LATIMESParser extends Parser {
         ArrayList<String> file_list = new ArrayList<String>();
 
         //catch all path of file name in FR folder
-        for (File f : new File(Path.Data_Path + "raw/TREC5/LATIMES/").listFiles()) {
+        for (File f : new File(Path.Data_Path + "/raw/TREC5/LATIMES/").listFiles()) {
             file_list.add(f.getAbsolutePath());
         }
 
@@ -55,7 +55,7 @@ public class LATIMESParser extends Parser {
             result = parser.getParsedResult();
             for (String[] k : result) {
                 System.out.println(k[0]);
-                fw = new FileWriter(Path.Data_Path + "raw_parsed/" + k[0]);
+                fw = new FileWriter(Path.Data_Path + "/raw_parsed/" + k[0]);
                 fw.write(k[1] + "\r\n");
                 //System.out.println(k[1]);
                 //System.out.println(k[2]);

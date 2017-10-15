@@ -38,7 +38,7 @@ public class QueryParser extends Parser {
 
     public static void main(String[] args) throws IOException {
         // TODO Auto-generated method stub
-        QueryParser parser = new QueryParser(new File(Path.Data_Path + "topics.301-350"));
+        QueryParser parser = new QueryParser(new File(Path.Data_Path + "/topics.301-350"));
         Vector<String[]> result = parser.getParsedResult();
 
 
@@ -71,14 +71,8 @@ public class QueryParser extends Parser {
             longQuery.append(QueryDesc + "\r\n");
             longQuery.append(QueryNarrtive);
 
-            FileSaver shortSaver = new FileSaver("res/ParseTopicsToTRECFormat/ShortQuery/" + QueryID);
+            FileSaver shortSaver = new FileSaver("res/OriginalShortTopic/" + QueryID);
             shortSaver.saveContent(shortQuery);
-
-            FileSaver midSaver = new FileSaver("res/ParseTopicsToTRECFormat/MidQuery/" + QueryID);
-            midSaver.saveContent(midQuery);
-
-            FileSaver longSaver = new FileSaver("res/ParseTopicsToTRECFormat/LongQuery/" + QueryID);
-            longSaver.saveContent(longQuery);
 
             ++c;
             

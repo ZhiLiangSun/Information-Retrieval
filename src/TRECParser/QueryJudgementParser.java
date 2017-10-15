@@ -42,7 +42,7 @@ public class QueryJudgementParser extends Parser {
         Boolean Relevance = null;
 
         //File Variable Declaration
-        String FileRoot = Path.Data_Path + "answer/parsed";
+        String FileRoot = Path.Data_Path + "/answer/parsed";
         String TopicPath = null;
         String TopicRPath = null;
         String TopicNRPath = null;
@@ -107,7 +107,7 @@ public class QueryJudgementParser extends Parser {
     public static void main(String[] args) throws IOException {
         String filePath = null;
         for (int i = 1; i < 6; i++) {
-            filePath = Path.Data_Path + "answer/qrels.trec6.adhoc.part" + i;
+            filePath = Path.Data_Path + "/answer/qrels.trec6.adhoc.part" + i;
             QueryJudgementParserSub(filePath);
         }
     }
