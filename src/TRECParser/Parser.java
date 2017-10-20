@@ -1,6 +1,6 @@
 package TRECParser;
 
-import IRLit.FileLoader;
+import Utils.FileLoader;
 
 import java.io.File;
 import java.io.IOException;

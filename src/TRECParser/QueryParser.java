@@ -1,6 +1,6 @@
 package TRECParser;
 
-import IRLit.FileSaver;
+import Utils.FileSaver;
 
 
 import java.io.File;

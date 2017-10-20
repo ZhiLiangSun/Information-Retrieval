@@ -1,7 +1,7 @@
 package TRECIndex;
 
 
-import IRLit.FileLoader;
+import Utils.FileLoader;
 import TRECParser.Path;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -22,6 +22,8 @@ public class TRECIndex {
         Directory dir = FSDirectory.open(new File(indexPath));
 
         StandardAnalyzer analyzer = new StandardAnalyzer();
+        // Stopwords not yet
+
         IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_4_10_3, analyzer);
         IndexWriter writer = null;
         writer = new IndexWriter(dir, iwc);
