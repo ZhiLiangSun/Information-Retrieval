@@ -1,11 +1,33 @@
 package Utils;
 
+import TRECParser.Path;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class FileUtils {
+
+    public static List<String> getStopWords() {
+        List<String> stopWords = new ArrayList<String>();
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(Path.Stopwords_Path));
+            String line = br.readLine();
+
+            while (line != null) {
+                stopWords.add(line);
+                line = br.readLine();
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stopWords;
+    }
+
 
     // get file's attribute
     public static String getExt(String path) {
@@ -104,7 +126,7 @@ public class FileUtils {
         }
     }
 
-    
+
     public static String readFile(String filePath) {
         return readFile(filePath, "utf-8");
     }

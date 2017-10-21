@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Stopwords {
     public ArrayList<String> run(ArrayList<String> topicWords) throws IOException {
 
-        FileReader StopList_File = new FileReader(Path.Project_Path + "/res/stoplist.dft");
+        FileReader StopList_File = new FileReader(Path.Stopwords_Path);
         BufferedReader buffer = new BufferedReader(StopList_File);
         ArrayList<String> stopwords = new ArrayList<String>();
 
