@@ -15,7 +15,7 @@ public class FilterTopicDocument {
     public List<String> getDocumentList(int querynumber, String property) {
         List<String> DocList = new ArrayList<>();
         BufferedReader br;
-        String R_ListPath = Path.Data_Path + "/answer/parsed/" + querynumber + "/" + querynumber + property;
+        String R_ListPath = Path.Data_Path + "/answer/list/" + querynumber + property;
         try {
             br = new BufferedReader(new FileReader(R_ListPath));
             String line = br.readLine();

@@ -60,10 +60,10 @@ public class QueryJudgementParser extends Parser {
             if (!currentTopic.equals(QueryNo)) {
                 //Save the previous one
                 if (TopicPath != null) {
-                    FileSaver Rsaver = new FileSaver(TopicPath + "/" + currentTopic + "RList");
+                    FileSaver Rsaver = new FileSaver(Path.Data_Path + "/answer/list/" + currentTopic + "RList");
                     Rsaver.saveContent(Rbuffer);
 
-                    FileSaver NRsaver = new FileSaver(TopicPath + "/" + currentTopic + "NRList");
+                    FileSaver NRsaver = new FileSaver(Path.Data_Path + "/answer/list/" + currentTopic + "NRList");
                     NRsaver.saveContent(NRbuffer);
                 }
 
@@ -96,10 +96,10 @@ public class QueryJudgementParser extends Parser {
             //System.out.println(QueryNo + " " + DocNo + " " + Relevance);
         }
 
-        FileSaver Rsaver = new FileSaver(TopicPath + "/" + currentTopic + "RList");
+        FileSaver Rsaver = new FileSaver(Path.Data_Path + "/answer/list/" + currentTopic + "RList");
         Rsaver.saveContent(Rbuffer);
 
-        FileSaver NRsaver = new FileSaver(TopicPath + "/" + currentTopic + "NRList");
+        FileSaver NRsaver = new FileSaver(Path.Data_Path + "/answer/list/" + currentTopic + "NRList");
         NRsaver.saveContent(NRbuffer);
 
     }
