@@ -5,6 +5,7 @@ public class Path {
     // /Users/zlsun/IdeaProjects/Information-Retrieval
     public static String Data_Path = System.getProperty("user.dir") + "/TREC";
     // /Users/zlsun/IdeaProjects/Information-Retrieval/TREC
+    public static String Answer_Path = Path.Data_Path + "/answer/parsed/";
 
     public static String Stopwords_Path = Project_Path + "/res/stoplist.dft";
     public static String Test_Path = Project_Path + "/res/testing";
