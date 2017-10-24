@@ -1,6 +1,6 @@
 package TRECIndex;
 
-import TRECParser.Path;
+import Utils.Path;
 import Utils.FileUtils;
 import Utils.Topic;
 

@@ -1,6 +1,6 @@
 package TopicParser;
 
-import TRECParser.Path;
+import Utils.Path;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

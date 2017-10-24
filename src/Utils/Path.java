@@ -1,4 +1,4 @@
-package TRECParser;
+package Utils;
 
 public class Path {
     public static String Project_Path = System.getProperty("user.dir");

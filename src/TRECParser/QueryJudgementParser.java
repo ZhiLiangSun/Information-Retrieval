@@ -1,6 +1,7 @@
 package TRECParser;
 
 import Utils.FileSaver;
+import Utils.Path;
 
 import java.io.File;
 import java.io.IOException;

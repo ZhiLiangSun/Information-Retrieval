@@ -1,7 +1,7 @@
 package TRECIndex;
 
 
-import TRECParser.Path;
+import Utils.Path;
 import Utils.FileLoader;
 import Utils.Topic;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;

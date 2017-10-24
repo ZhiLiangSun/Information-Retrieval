@@ -1,7 +1,5 @@
 package Utils;
 
-import TRECParser.Path;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
