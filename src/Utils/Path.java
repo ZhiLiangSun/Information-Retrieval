@@ -7,7 +7,7 @@ public class Path {
     // /Users/zlsun/IdeaProjects/Information-Retrieval/TREC
     public static String Answer_Path = Path.Data_Path + "/answer/parsed/";
 
-    public static String Stopwords_Path = Project_Path + "/res/stoplist.dft";
+    public static String Stopwords_Path = Project_Path + "/res/stopwords.txt";
     public static String Test_Path = Project_Path + "/res/testing";
 
     public static void main(String[] args) {

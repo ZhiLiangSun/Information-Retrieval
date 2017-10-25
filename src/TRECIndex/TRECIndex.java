@@ -1,8 +1,9 @@
 package TRECIndex;
 
 
-import Utils.Path;
+import Utils.ExpUtils;
 import Utils.FileLoader;
+import Utils.Path;
 import Utils.Topic;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
@@ -17,16 +18,18 @@ import org.apache.lucene.util.Version;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 
 public class TRECIndex {
     public static void main(String[] args) throws Exception {
-
+        Date start = new Date();
         int[] topics = Topic.topics_all;
 
         TRECIndex trceindex = new TRECIndex();
         for (int i = 0; i < topics.length; i++) {
             trceindex.initialIndexer(topics[i]);
         }
+        ExpUtils.printTimeUsage(start, new Date());
     }
 
     private void initialIndexer(int queryNumber) throws Exception {

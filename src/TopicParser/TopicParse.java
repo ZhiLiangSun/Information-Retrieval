@@ -1,5 +1,6 @@
 package TopicParser;
 
+import Utils.FileUtils;
 import Utils.Path;
 
 import java.io.BufferedReader;
@@ -17,7 +18,6 @@ public class TopicParse {
         }
         result = result + "</DOC>";
 
-
         fw.write(result);
         fw.flush();
         fw.close();
@@ -30,16 +30,24 @@ public class TopicParse {
         Stemming st = new Stemming();
         ArrayList<String> TopicWords;
 
+        String content = "";
+        String porter = "";
+        int count = 0;
+
         for (int i = 301; i < 351; i++) {
             Topic_File = new FileReader(Path.Project_Path + "/res/OriginalShortTopic/" + i);
+            content = content + i + " " + FileUtils.readFile(Path.Project_Path + "/res/OriginalShortTopic/" + i);
             BufferedReader buffer = new BufferedReader(Topic_File);
             String TopicSentence = buffer.readLine();
             TopicWords = p.run(TopicSentence);
             TopicWords = s.run(TopicWords);
             TopicWords = st.run(TopicWords);
+            porter += i + " " + String.join(" ", TopicWords) + "\r\n";
             TREC_Format(TopicWords, i);
         }
-        Topic_File.close();
 
+        FileUtils.writeFile(Path.Project_Path + "/res/porter topics.txt", porter);
+        FileUtils.writeFile(Path.Project_Path + "/res/topics.txt", content);
+        Topic_File.close();
     }
 }
