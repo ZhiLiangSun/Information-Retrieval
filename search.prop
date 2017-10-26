@@ -1,0 +1,19 @@
+# Search Files Props
+# docs-per-query
+docs-per-query = 1000
+# query-terms-count (0 - any count) (eg. queries with only 3 terms - 3 )
+query-terms-count = 0
+# out-file - name of the file where results will be written
+out-file = C:\\Users\\Lab714\\Desktop\\Exp_input
+mac-out-file = /Users/zlsun/IdeaProjects/Information-Retrieval/Exp_input/
+
+# See QueryExpansion.java CONSTANTS section for details
+#QE.method = Sun
+#QE.method = Rocchio
+#QE.method = Original
+#QE.decay = 0.04
+QE.doc.num = 20
+QE.term.num = 40
+rocchio.alpha = 1
+rocchio.beta = 0.75
+rocchio.gamma = 0.25

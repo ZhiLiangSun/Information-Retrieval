@@ -71,3 +71,4 @@ fabric.properties
 TREC/
 res/
 .DS_Store
+Exp_input/
