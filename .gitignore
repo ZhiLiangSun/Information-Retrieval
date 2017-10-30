@@ -1,3 +1,9 @@
+.DS_Store
+TREC/
+res/
+Exp_input/
+
+
 # Compiled class file
 *.class
 
@@ -68,7 +74,3 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-TREC/
-res/
-.DS_Store
-Exp_input/
