@@ -1,12 +1,17 @@
 package Utils;
 
+import org.apache.lucene.document.Document;
+
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class ExpUtils {
 
+    public static Document doc = null;
+    public static int docTermCount = 0;
 
     public static void printTimeUsage(Date start, Date end) {
         System.out.println("===========  " + "Finished" + "  ===========");
@@ -73,5 +78,37 @@ public class ExpUtils {
     public static void main(String[] args) {
         System.out.println(getTopicList("porter topics"));
 
+    }
+    public static int getDocTermCount(Document doc) {
+        return getDocTermCount(doc, false);
+    }
+
+    public static int getDocTermCount(Document doc, boolean cache) {
+        int docTermCount;
+
+        if (cache) {
+            if (doc.equals(ExpUtils.doc)) {
+                return ExpUtils.docTermCount;
+            }
+            // cache is empty
+            else {
+                // Calculate docTermCount
+                docTermCount = getDocTermCount(doc, false);
+                // cache values
+                ExpUtils.doc = doc;
+                ExpUtils.docTermCount = docTermCount;
+                return docTermCount;
+            }
+        }
+        else {
+            StringBuffer strb = new StringBuffer();
+            String[] txt = doc.getValues("content");
+            for (int i = 0; i < txt.length; i++) {
+                strb.append(txt[i]);
+            }
+            StringTokenizer tknzr = new StringTokenizer(strb.toString());
+            docTermCount = tknzr.countTokens();
+            return docTermCount;
+        }
     }
 }

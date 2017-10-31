@@ -30,11 +30,13 @@ public class LuceneExp {
     public static void main(String[] args) throws Exception {
 
         LuceneExp exp = new LuceneExp();
-        exp.search("house", 301);
+        exp.search("original", 301);
 
     }
 
-    public void search(String Method, int querynumber) throws Exception {
+    public void search(String method, int querynumber) throws Exception {
+
+        System.out.println("===========  " + method + " " + querynumber + "  ===========");
 
         String queryString = ExpUtils.getQueryString(querynumber);
 
@@ -58,9 +60,6 @@ public class LuceneExp {
 
         TopDocs hits = searcher.search(query, hitsCount);
 
-        System.out.println("Initial Query: " + queryString);
-        System.out.println("共找到：" + hits.totalHits);
-
         List<String> topRDocList = new ArrayList<String>();
         ScoreDoc[] scoreDoc = hits.scoreDocs;
 
@@ -80,5 +79,8 @@ public class LuceneExp {
         }
         writer.flush();
         writer.close();
+
+        System.out.println("Initial Query: " + queryString);
+        System.out.println("共找到：" + hits.totalHits);
     }
 }
