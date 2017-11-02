@@ -6,6 +6,27 @@ import java.util.List;
 
 public class FileUtils {
 
+    public static List<String> getRelevantDocList(int queryNumber) {
+        List<String> rLists = new ArrayList<String>();
+        BufferedReader br;
+        try {
+            String rListPath = Path.Data_Path + "/answer/list/" + queryNumber + "RList";
+            br = new BufferedReader(new FileReader(rListPath));
+            String line = br.readLine();
+
+            while (line != null) {
+                rLists.add(line);
+                line = br.readLine();
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rLists;
+    }
+
     public static List<String> getStopWords() {
         List<String> stopWords = new ArrayList<String>();
         BufferedReader br;

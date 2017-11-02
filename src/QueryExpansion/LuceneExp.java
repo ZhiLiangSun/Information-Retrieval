@@ -63,6 +63,9 @@ public class LuceneExp {
         List<String> topRDocList = new ArrayList<String>();
         ScoreDoc[] scoreDoc = hits.scoreDocs;
 
+        QueryExpansion q = new QueryExpansion();
+        q.getTopDoc(hits,301,searcher);
+
         int top1000 = 1000;
         if (hits.totalHits < top1000) {
             top1000 = hits.totalHits;
