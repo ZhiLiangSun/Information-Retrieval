@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 
 public class LuceneExp {
 
@@ -63,8 +64,10 @@ public class LuceneExp {
         List<String> topRDocList = new ArrayList<String>();
         ScoreDoc[] scoreDoc = hits.scoreDocs;
 
-        QueryExpansion q = new QueryExpansion();
-        q.getTopDoc(hits,301,searcher);
+        QueryExpansion q = new QueryExpansion(301,searcher,prop);
+        q.getTopDoc(hits);
+        Vector<Document> vHitsr = q.getDocs("APPLE",hits,q.rDocOriginalRank);
+        Vector<Document> vHitsnr = q.getDocs("APPLE",hits,q.nrDocOriginalRank);
 
         int top1000 = 1000;
         if (hits.totalHits < top1000) {
