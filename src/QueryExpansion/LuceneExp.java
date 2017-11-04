@@ -64,10 +64,15 @@ public class LuceneExp {
         List<String> topRDocList = new ArrayList<String>();
         ScoreDoc[] scoreDoc = hits.scoreDocs;
 
-        QueryExpansion q = new QueryExpansion(301,searcher,prop);
+        //for the test
+        QueryExpansion q = new QueryExpansion(301, searcher, prop, analyzer);
         q.getTopDoc(hits);
-        Vector<Document> vHitsr = q.getDocs("APPLE",hits,q.rDocOriginalRank);
-        Vector<Document> vHitsnr = q.getDocs("APPLE",hits,q.nrDocOriginalRank);
+        Vector<Document> vHitsr = q.getDocs("APPLE", hits, q.rDocOriginalRank);
+        Vector<Document> vHitsnr = q.getDocs("APPLE", hits, q.nrDocOriginalRank);
+        int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
+        Vector<QueryTermVector> docsrTermVector = q.getDocsTerms(vHitsr, docNum);
+        Vector<QueryTermVector> docsnrTermVector = q.getDocsTerms(vHitsnr, docNum);
+        //end for the test
 
         int top1000 = 1000;
         if (hits.totalHits < top1000) {
