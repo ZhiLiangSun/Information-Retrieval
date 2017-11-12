@@ -10,10 +10,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.FSDirectory;
 
@@ -65,13 +62,17 @@ public class LuceneExp {
         ScoreDoc[] scoreDoc = hits.scoreDocs;
 
         //for the test
-        QueryExpansion q = new QueryExpansion(301, searcher, prop, analyzer);
+        QueryExpansion q = new QueryExpansion(301, searcher, prop, analyzer, similarity);
         q.getTopDoc(hits);
         Vector<Document> vHitsr = q.getDocs("APPLE", hits, q.rDocOriginalRank);
         Vector<Document> vHitsnr = q.getDocs("APPLE", hits, q.nrDocOriginalRank);
         int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
         Vector<QueryTermVector> docsrTermVector = q.getDocsTerms(vHitsr, docNum);
         Vector<QueryTermVector> docsnrTermVector = q.getDocsTerms(vHitsnr, docNum);
+        float decay = Float.valueOf(prop.getProperty("0.04", "0.0")).floatValue();
+
+        Vector<TermQuery> docsrTerms = q.setBoost(docsrTermVector, 0.75f, decay);
+        Vector<TermQuery> docsnrTerms = q.setBoost(docsnrTermVector, 0.25f, decay);
         //end for the test
 
         int top1000 = 1000;
