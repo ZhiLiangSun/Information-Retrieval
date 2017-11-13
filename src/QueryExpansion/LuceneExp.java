@@ -73,6 +73,22 @@ public class LuceneExp {
 
         Vector<TermQuery> docsrTerms = q.setBoost(docsrTermVector, 0.75f, decay);
         Vector<TermQuery> docsnrTerms = q.setBoost(docsnrTermVector, 0.25f, decay);
+
+        List<String> rTermsLists = new ArrayList<>();
+        List<String> nrTermLists = new ArrayList<>();
+        // store relevant terms
+        for (int i = 0; i < docsrTerms.size(); i++) {
+            String[] rterm = docsrTerms.get(i).toString("contents").replace("^", ",").split(",");
+            rTermsLists.add(rterm[0]);
+        }
+        // store non-relevant terms
+        for (int i = 0; i < docsnrTerms.size(); i++) {
+            String[] nrterm = docsnrTerms.get(i).toString("contents").replace("^", ",").split(",");
+            if (!rTermsLists.contains(nrterm[0])) {
+                nrTermLists.add(nrterm[0]);
+            }
+        }
+
         //end for the test
 
         int top1000 = 1000;
