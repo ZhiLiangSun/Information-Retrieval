@@ -18,10 +18,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 
 public class LuceneExp {
 
@@ -75,19 +72,26 @@ public class LuceneExp {
         Vector<TermQuery> docsnrTerms = q.setBoost(docsnrTermVector, 0.25f, decay);
 
         List<String> rTermsLists = new ArrayList<>();
-        List<String> nrTermLists = new ArrayList<>();
+        //List<String> nrTermLists = new ArrayList<>();
         // store relevant terms
         for (int i = 0; i < docsrTerms.size(); i++) {
             String[] rterm = docsrTerms.get(i).toString("contents").replace("^", ",").split(",");
             rTermsLists.add(rterm[0]);
         }
         // store non-relevant terms
-        for (int i = 0; i < docsnrTerms.size(); i++) {
+        for (int i = 0, size = docsnrTerms.size(); i < size; i++) {
             String[] nrterm = docsnrTerms.get(i).toString("contents").replace("^", ",").split(",");
-            if (!rTermsLists.contains(nrterm[0])) {
-                nrTermLists.add(nrterm[0]);
+            if (rTermsLists.contains(nrterm[0])) {
+                docsnrTerms.remove(i);
+                i--;
+                size--;
             }
         }
+
+        Comparator<Object> comparator = new QueryBoostComparator();
+        Collections.sort(docsrTerms, comparator);
+        Collections.sort(docsnrTerms, comparator);
+
 
         //end for the test
 
