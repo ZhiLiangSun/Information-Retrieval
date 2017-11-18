@@ -75,12 +75,12 @@ public class LuceneExp {
         //List<String> nrTermLists = new ArrayList<>();
         // store relevant terms
         for (int i = 0; i < docsrTerms.size(); i++) {
-            String[] rterm = docsrTerms.get(i).toString("contents").replace("^", ",").split(",");
+            String[] rterm = docsrTerms.get(i).toString("content").replace("^", ",").split(",");
             rTermsLists.add(rterm[0]);
         }
         // store non-relevant terms
         for (int i = 0, size = docsnrTerms.size(); i < size; i++) {
-            String[] nrterm = docsnrTerms.get(i).toString("contents").replace("^", ",").split(",");
+            String[] nrterm = docsnrTerms.get(i).toString("content").replace("^", ",").split(",");
             if (rTermsLists.contains(nrterm[0])) {
                 docsnrTerms.remove(i);
                 i--;
@@ -92,7 +92,7 @@ public class LuceneExp {
         Collections.sort(docsrTerms, comparator);
         Collections.sort(docsnrTerms, comparator);
 
-
+        Query expandedQuery = q.mergeQueriesSun(docsrTerms);
         //end for the test
 
         int top1000 = 1000;

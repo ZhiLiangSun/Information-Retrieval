@@ -76,8 +76,10 @@ public class WordNet {
         return expansionList;
     }
 
+    // for the test, remove later
     public static void main(String[] args) {
         LinkedHashMap<String, Float> expansionList = new LinkedHashMap<>();
+        expansionList.put("eat",0.03f);
         expansionList.put("apple",0.03f);
         expansionList.put("car",0.01f);
         expansionList.put("pen",0.02f);
