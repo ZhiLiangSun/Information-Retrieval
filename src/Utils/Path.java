@@ -12,7 +12,7 @@ public class Path {
     public static String Stopwords_Path = Project_Path + "/res/stopwords.txt";
     public static String Test_Path = Project_Path + "/res/testing";
 
-    public static String WORDNET_DIR_PATH = "/Users/zlsun/Downloads/WordNet";
+    public static String WORDNET_DIR_PATH = Project_Path + "/res/WordNet";
 
     public static void main(String[] args) {
         System.out.println("Working Directory = " + System.getProperty("user.dir"));

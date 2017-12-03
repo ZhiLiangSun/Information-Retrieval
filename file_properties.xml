@@ -43,7 +43,7 @@
                 <!--<param name="encoding" value="UTF-8"/>-->
             </param>
             <!--<param name="cache_use_count" value="true"/>-->
-            <param name="dictionary_path" value="/Users/zlsun/Downloads/WordNet"/>
+            <param name="dictionary_path" value="/Users/zlsun/IdeaProjects/Information-Retrieval/res/WordNet"/>
         </param>
     </dictionary>
     <resource class="net.sf.extjwnl.princeton.PrincetonResource"/>
