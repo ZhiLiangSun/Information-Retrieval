@@ -7,7 +7,6 @@ import net.sf.extjwnl.data.IndexWord;
 import net.sf.extjwnl.data.POS;
 import net.sf.extjwnl.data.PointerUtils;
 import net.sf.extjwnl.data.Synset;
-import net.sf.extjwnl.data.list.PointerTargetNode;
 import net.sf.extjwnl.data.list.PointerTargetNodeList;
 import net.sf.extjwnl.dictionary.Dictionary;
 
@@ -89,35 +88,34 @@ public class WordNet {
         return expansionList;
     }
 
-    // for the test, remove later
-    public static void main(String[] args) throws JWNLException {
+    public static String[] getAntonyms(String term) throws JWNLException {
 
-        List<String> stopWords = FileUtils.getStopWords();
         Dictionary dictionary = Dictionary.getFileBackedInstance(Path.WORDNET_DIR_PATH);
-
-        IndexWord word = getPOS("good", dictionary);
+        IndexWord word = getPOS(term, dictionary);
         List<Synset> s = word.getSenses();
-        String Antonyms = "";
+        String[] temp = new String[s.size()];
+        int count = 0;
 
         for (int i = 0; i < s.size(); i++) {
 
             Synset sense = s.get(i);
+            PointerTargetNodeList antonyms;
+            antonyms = PointerUtils.getAntonyms(sense);
 
-            PointerTargetNodeList phyponyms = new PointerTargetNodeList();
-            phyponyms = PointerUtils.getAntonyms(sense);
-
-            ArrayList<Synset> hypernyms = new ArrayList<>();
-            for (int j = 0; j < phyponyms.size(); j++) {
-                PointerTargetNode ptn = phyponyms.get(j);
-                hypernyms.add(ptn.getSynset());
-                Antonyms += hypernyms.get(j).getWords().get(j).getLemma().toLowerCase() + ",";
-
-                System.out.println("done");
+            for (int j = 0; j < antonyms.size(); j++) {
+                temp[count] = antonyms.get(j).getWord().getLemma().toLowerCase();
+                count++;
             }
-            System.out.println("done");
 
         }
-        System.out.println(Antonyms);
+        return temp;
+    }
+
+    // for the test, remove later
+    public static void main(String[] args) throws JWNLException {
+
+        String[] temp = getAntonyms("organize");
+        System.out.println(temp.toString());
         System.out.println("---------------------------------");
 
 
@@ -126,13 +124,13 @@ public class WordNet {
         expansionList.put("apple", 0.03f);
         expansionList.put("car", 0.01f);
         expansionList.put("pen", 0.02f);
-        int count = expansionList.size();
+        int count2 = expansionList.size();
         List<String> list = new ArrayList<String>();
         for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
             String key = entry.getKey();
             list.add(key);
         }
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count2; i++) {
             expansionList = WordNet.showSynset(expansionList, list.get(i));
         }
         System.out.println("Synset done.");
