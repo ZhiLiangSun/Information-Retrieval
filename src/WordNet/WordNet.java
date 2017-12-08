@@ -115,7 +115,7 @@ public class WordNet {
     public static void main(String[] args) throws JWNLException {
 
         String[] temp = getAntonyms("organize");
-        System.out.println(temp.toString());
+        System.out.println(temp[1]);
         System.out.println("---------------------------------");
 
 
