@@ -33,6 +33,7 @@ public class TopicParse {
         String content = "";
         String porter = "";
         String stem_porter = "";
+        String unstem_content = "";
         int count = 0;
 
         for (int i = 301; i < 351; i++) {
@@ -42,15 +43,17 @@ public class TopicParse {
             String TopicSentence = buffer.readLine();
             TopicWords = p.run(TopicSentence);
             TopicWords = s.run(TopicWords);
+            unstem_content += String.join(" ", TopicWords) + "\r\n";
             TopicWords = st.run(TopicWords);
             porter += i + " " + String.join(" ", TopicWords) + "\r\n";
             stem_porter += String.join(" ", TopicWords) + "\r\n";
             TREC_Format(TopicWords, i);
         }
 
-        FileUtils.writeFile(Path.Project_Path + "/res/porter topics.txt", porter);
-        FileUtils.writeFile(Path.Project_Path + "/res/topics.txt", content);
-        FileUtils.writeFile(Path.Project_Path + "/res/stem topics.txt", stem_porter);
+        FileUtils.writeFile(Path.Project_Path + "/res/TopicSet/porter topics.txt", porter);
+        FileUtils.writeFile(Path.Project_Path + "/res/TopicSet/topics.txt", content);
+        FileUtils.writeFile(Path.Project_Path + "/res/TopicSet/stem topics.txt", stem_porter);
+        FileUtils.writeFile(Path.Project_Path + "/res/TopicSet/unstem topics.txt", unstem_content);
         Topic_File.close();
     }
 }

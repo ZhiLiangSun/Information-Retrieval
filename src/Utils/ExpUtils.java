@@ -45,7 +45,7 @@ public class ExpUtils {
 
     public static Map<Integer, String> getTopicList(String prop) {
         Map<Integer, String> topics = new HashMap<Integer, String>();
-        File file = new File(Path.Project_Path + "/res/" + prop + ".txt");
+        File file = new File(Path.Project_Path + "/res/TopicSet/" + prop + ".txt");
         FileReader fr = null;
         BufferedReader br = null;
 
