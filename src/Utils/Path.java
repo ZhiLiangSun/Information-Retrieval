@@ -11,6 +11,7 @@ public class Path {
 
     public static String Stopwords_Path = Project_Path + "/res/stopwords.txt";
     public static String Test_Path = Project_Path + "/res/testing";
+    public static String docTerm_Path = Project_Path + "/res/docTerm/";
 
     public static String WORDNET_DIR_PATH = Project_Path + "/res/WordNet";
 
