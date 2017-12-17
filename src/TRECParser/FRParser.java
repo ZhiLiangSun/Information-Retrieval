@@ -31,6 +31,10 @@ public class FRParser extends Parser {
         String[] group = new String[2];
         group[0] = matcher.group(1).trim();
         group[1] = matcher.group(2).replaceAll("<.*?>", "")
+                .replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\bsect\\b"," ") //replace "sect" only
+                .replaceAll("\\s+", " ")
+
                 .replaceAll("\\&hyph;", "-")
                 .replaceAll("\\&amp;", "&")
                 .replaceAll("\\&.*?;", " ").trim();

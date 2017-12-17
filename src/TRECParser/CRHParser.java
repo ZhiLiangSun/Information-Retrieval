@@ -31,13 +31,16 @@ public class CRHParser extends Parser {
         // TODO Auto-generated method stub
         String[] group = new String[3];
         group[0] = matcher.group(1).trim();
-        group[1] = matcher.group(2).trim();
+        group[1] = matcher.group(2).replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ").trim();
         group[2] = matcher.group(3).replaceAll("<FLD.*?>.*?</FLD.*?>", "")
                 .replaceAll("<TI.*?>.*?</TI.*?>", "")
                 .replaceAll("<PRE.*?>.*?</PRE.*?>", "")
                 .replaceAll("<H.*?>.*?</H.*?>", "")
                 .replaceAll(">\\[.*?\\]<", "")
                 .replaceAll("<.*?>", "")
+                .replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ")
 
                 //extra insurance
                 .replaceAll("\\&hyph;", "-")

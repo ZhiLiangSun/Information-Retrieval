@@ -32,7 +32,9 @@ public class LATIMESParser extends Parser {
         group[0] = matcher.group(1).trim();
         group[1] = matcher.group(2).replaceAll("\\&amp;", "&")
                 .replaceAll("<LENGTH.*?>\\r\\n<P.*?>\\r\\n.*?\\r\\n</P.*?>\\r\\n</LENGTH.*?>", "")
-                .replaceAll("<.*?>", "").trim();
+                .replaceAll("<.*?>", "")
+                .replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ").trim();
         return group;
     }
 

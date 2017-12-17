@@ -36,6 +36,8 @@ public class CREParser extends Parser {
                 .replaceAll("<TI.*?>.*?</TI.*?>", "")
                 .replaceAll("<PRE.*?>.*?</PRE.*?>", "")
                 .replaceAll("<.*?>", "")
+                .replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ")
 
                 //extra insurance
                 .replaceAll("\\&hyph;", "-")

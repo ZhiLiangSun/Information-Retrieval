@@ -30,8 +30,13 @@ public class FTParser extends Parser {
         // TODO Auto-generated method stub
         String[] group = new String[3];
         group[0] = matcher.group(1).trim();
-        group[1] = matcher.group(2).replaceAll("\\&amp;", "&").trim();
-        group[2] = matcher.group(3).replaceAll("\\&amp;", "&").trim();
+        group[1] = matcher.group(2).replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ")
+                .replaceAll("\\&amp;", "&").trim();
+        group[2] = matcher.group(3)
+                .replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ")
+                .replaceAll("\\&amp;", "&").trim();
         return group;
     }
 

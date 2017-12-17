@@ -41,6 +41,8 @@ public class FBISParser extends Parser {
                 .replaceAll("<F.*?>[\\w\\W]*?</F.*?>", "")
                 .replaceAll("<.*?>", "")
                 .replaceAll("\\[.*?\\]", "")
+                .replaceAll("[^a-zA-Z ]", " ").toLowerCase()
+                .replaceAll("\\s+", " ")
 
                 //extra insurance
                 .replaceAll("\\&hyph;", "-")
