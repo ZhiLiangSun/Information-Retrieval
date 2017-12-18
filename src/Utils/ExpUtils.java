@@ -35,7 +35,7 @@ public class ExpUtils {
         if (queryNumber != 344) {
             queryString = queryString.replaceAll("[-/]", " ");
 
-            if (queryNumber!=339) {
+            if (queryNumber != 339) {
                 queryString = queryString.replaceAll("[^A-Za-z ]", "");
             }
         }
@@ -79,6 +79,7 @@ public class ExpUtils {
         System.out.println(getTopicList("porter topics"));
 
     }
+
     public static int getDocTermCount(Document doc) {
         return getDocTermCount(doc, false);
     }
@@ -99,8 +100,7 @@ public class ExpUtils {
                 ExpUtils.docTermCount = docTermCount;
                 return docTermCount;
             }
-        }
-        else {
+        } else {
             StringBuffer strb = new StringBuffer();
             String[] txt = doc.getValues("content");
             for (int i = 0; i < txt.length; i++) {

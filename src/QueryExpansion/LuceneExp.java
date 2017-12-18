@@ -92,9 +92,10 @@ public class LuceneExp {
         Collections.sort(docsrTerms, comparator);
         Collections.sort(docsnrTerms, comparator);
 
-        //ExportTerm e = new ExportTerm();
+        ExportTerm e = new ExportTerm();
         //e.exportxt(docsrTerms, querynumber + "r");
         //e.exportxt(docsnrTerms, querynumber + "nr");
+        e.synTFIDF(docsrTerms);
 
         Query expandedQuery = q.mergeQueriesSun(docsrTerms);
         //end for the test
