@@ -16,7 +16,31 @@ import java.util.*;
 
 public class QueryExpansion {
 
+    /**
+     * Indicates which method to use for QE
+     */
+    public static final String METHOD_FLD = "QE.method";
+    public static final String SUN_METHOD = "Sun";
+    public static final String ROCCHIO_METHOD = "Rocchio";
+    public static final String ORIGINAL_METHOD = "Original";
+    /**
+     * how much importance of document decays as doc rank gets higher. decay = decay * rank 0 - no decay
+     */
+    public static final String DECAY_FLD = "QE.decay";
+    /**
+     * Number of documents to use
+     */
     public static final String DOC_NUM_FLD = "QE.doc.num";
+    /**
+     * Number of terms to produce
+     */
+    public static final String TERM_NUM_FLD = "QE.term.num";
+    /**
+     * Rocchio Params
+     */
+    public static final String ROCCHIO_ALPHA_FLD = "rocchio.alpha";
+    public static final String ROCCHIO_BETA_FLD = "rocchio.beta";
+    public static final String ROCCHIO_GAMMA_FLD = "rocchio.gamma";
 
     private int querynumber;
     private IndexSearcher searcher;
@@ -33,9 +57,14 @@ public class QueryExpansion {
     public List<Integer> rDocOriginalRank;
     public List<Integer> nrDocOriginalRank;
     public List<String> stopWords;
+    public List<String> rTermsLists;
+    public List<Integer> docOriginalRank;
 
-    public QueryExpansion(int querynumber, IndexSearcher searcher, Properties prop, Analyzer analyzer, TFIDFSimilarity similarity) {
+    String method;
 
+    public QueryExpansion(String method, int querynumber, IndexSearcher searcher, Properties prop, Analyzer analyzer, TFIDFSimilarity similarity) {
+
+        this.method = method;
         this.querynumber = querynumber;
         this.searcher = searcher;
         this.prop = prop;
@@ -51,18 +80,89 @@ public class QueryExpansion {
         expandedTerms = new Vector<>();
         expansionList = new LinkedHashMap<>();
         stopWords = FileUtils.getStopWords();
+        rTermsLists = new ArrayList<>();
 
     }
 
-    public Query mergeQueriesSun(Vector<TermQuery> termQueries) throws QueryNodeException, IOException, ParseException {
+    public Query expandQuerySun(String queryStr, TopDocs hits, boolean flag) throws QueryNodeException, IOException, ParseException {
+
+        docOriginalRank = new ArrayList<>();
+
+        //get top 20 relevant document and top 20 non-relevant document
+        getTopDoc(hits, flag);
+
+        //get Docs to be used in query expansion
+        Vector<Document> vHits = getDocs(hits, docOriginalRank);
+
+        //Load Necessary Values from Properties
+        float alpha = Float.valueOf(prop.getProperty(QueryExpansion.ROCCHIO_ALPHA_FLD)).floatValue();
+        float decay = Float.valueOf(prop.getProperty(QueryExpansion.DECAY_FLD, "0.0")).floatValue();
+        int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
+
+        //Create combine documents term vectors - sum (rel term vectors)
+        Vector<QueryTermVector> docsTermVector = getDocsTerms(vHits, docNum);
+
+        //setBoost of docs terms
+        Vector<TermQuery> docsTerms = setBoost(docsTermVector, alpha, decay);
+
+        //setBoost of query terms
+        //Get queryTerms from the query
+        QueryTermVector queryTermsVector = new QueryTermVector(queryStr, analyzer);
+        Vector<TermQuery> queryTerms = setBoost(queryTermsVector, alpha);
+
+        //combine weights according to expansion formula
+        //combine queryTerm and docsTerm boosts
+        Vector<TermQuery> expandedQueryTerms = combineOrNot(queryTerms, docsTerms, flag);
+
+        //store relevant terms
+        if (flag) {
+            for (int i = 0; i < expandedQueryTerms.size(); i++) {
+                String[] rterm = expandedQueryTerms.get(i)
+                        .toString("contents").replace("^", ",").split(",");
+                rTermsLists.add(rterm[0]);
+            }
+            //put querystring into rTermsLists
+            String querytmp = queryStr.toLowerCase();
+            String[] queryStringSplit = querytmp.split(" ");
+            for (int j = 0; j < queryStringSplit.length; j++) {
+                if (!rTermsLists.contains(queryStringSplit[j])) {
+                    rTermsLists.add(queryStringSplit[j]);
+                }
+            }
+        }
+        //remove relevant terms from non-relevant terms
+        else {
+            for (int i = 0, size = expandedQueryTerms.size(); i < size; i++) {
+                String[] nrterm = expandedQueryTerms.get(i)
+                        .toString("contents").replace("^", ",").split(",");
+                if (rTermsLists.contains(nrterm[0])) {
+                    expandedQueryTerms.remove(i);
+                    i--;
+                    size--;
+                }
+            }
+        }
+
+        setExpandedTerms(expandedQueryTerms);
+
+        Comparator<Object> comparator = new QueryBoostComparator();
+        Collections.sort(expandedQueryTerms, comparator);
+
+
+        Query expandedQuery = mergeQueriesSun(expandedQueryTerms, flag);
+        return expandedQuery;
+    }
+
+    public Query mergeQueriesSun(Vector<TermQuery> termQueries, boolean flag) throws QueryNodeException, IOException, ParseException {
         StringBuffer termBuffer = new StringBuffer();
+        expansionList = new LinkedHashMap<>();
 
         // TFIDF expansion
         System.out.println("-------------------------------------");
         System.out.println("-----------TFIDF Expansion-----------");
         System.out.println("-------------------------------------");
 
-        int threshold = getThreshold();
+        int threshold = getThreshold(flag);
         int index = 0;
 
         while (true) {
@@ -86,19 +186,21 @@ public class QueryExpansion {
         }
 
         //WordNet Expansion
-        System.out.println("-------------------------------------");
-        System.out.println("**********WordNet Expansion**********");
-        System.out.println("-------------------------------------");
+        if (flag) {
+            System.out.println("-------------------------------------");
+            System.out.println("**********WordNet Expansion**********");
+            System.out.println("-------------------------------------");
 
-        int count = expansionList.size();
-        List<String> list = new ArrayList<String>();
-        for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
-            String key = entry.getKey();
-            list.add(key);
-        }
+            int count = expansionList.size();
+            List<String> list = new ArrayList<String>();
+            for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
+                String key = entry.getKey();
+                list.add(key);
+            }
 
-        for (int i = 0; i < count; i++) {
-            expansionList = WordNet.showSynset(expansionList, list.get(i));
+            for (int i = 0; i < count; i++) {
+                expansionList = WordNet.showSynset(expansionList, list.get(i));
+            }
         }
 
         //append to buffer
@@ -121,7 +223,7 @@ public class QueryExpansion {
         return query;
     }
 
-    public Vector<Document> getDocs(String query, TopDocs hits, List<Integer> DocOriginalRank) throws IOException {
+    public Vector<Document> getDocs(TopDocs hits, List<Integer> DocOriginalRank) throws IOException {
         Vector<Document> vHits = new Vector<>();
         // Extract only as many docs as necessary
         int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
@@ -134,7 +236,7 @@ public class QueryExpansion {
         return vHits;
     }
 
-    public void getTopDoc(TopDocs hits) throws IOException {
+    public void getTopDoc(TopDocs hits, boolean flag) throws IOException {
 
         ScoreDoc[] scoreDocs = hits.scoreDocs;
         List<String> rList;
@@ -142,21 +244,24 @@ public class QueryExpansion {
 
         Document doc;
         String docNo;
+        if (flag) {
+            for (int i = 0; i < scoreDocs.length; i++) {
+                doc = searcher.doc(scoreDocs[i].doc);
+                docNo = doc.get("DOCNO");
 
-        for (int i = 0; i < scoreDocs.length; i++) {
-            doc = searcher.doc(scoreDocs[i].doc);
-            docNo = doc.get("DOCNO");
-
-            if (rList.contains(docNo) && top20RDocIdList.size() < 20) {
-                this.top20RDocList.add(docNo);
-                this.top20RDocIdList.add(scoreDocs[i].doc);
-                this.rDocOriginalRank.add(i);
-            } else if (!rList.contains(docNo) && top20NRDocIdList.size() < 20) {
-                this.top20NRDocList.add(docNo);
-                this.top20NRDocIdList.add(scoreDocs[i].doc);
-                this.nrDocOriginalRank.add(i);
+                if (rList.contains(docNo) && top20RDocIdList.size() < 20) {
+                    this.top20RDocList.add(docNo);
+                    this.top20RDocIdList.add(scoreDocs[i].doc);
+                    this.rDocOriginalRank.add(i);
+                } else if (!rList.contains(docNo) && top20NRDocIdList.size() < 20) {
+                    this.top20NRDocList.add(docNo);
+                    this.top20NRDocIdList.add(scoreDocs[i].doc);
+                    this.nrDocOriginalRank.add(i);
+                }
             }
-        }
+            docOriginalRank = rDocOriginalRank;
+        } else
+            docOriginalRank = nrDocOriginalRank;
     }
 
     public Vector<QueryTermVector> getDocsTerms(Vector<Document> hits, int docsRelevantCount) throws IOException {
@@ -180,6 +285,16 @@ public class QueryExpansion {
         }
 
         return docsTerms;
+    }
+
+    /**
+     * Sets boost of terms. boost = weight = factor(tf * idf)
+     */
+    public Vector<TermQuery> setBoost(QueryTermVector termVector, float factor) throws IOException {
+        Vector<QueryTermVector> v = new Vector<QueryTermVector>();
+        v.add(termVector);
+
+        return setBoost(v, factor, 0);
     }
 
     public Vector<TermQuery> setBoost(Vector<QueryTermVector> docsTerms, float factor, float decayFactor)
@@ -220,6 +335,49 @@ public class QueryExpansion {
         merge(terms);
 
         return terms;
+    }
+
+    public Vector<TermQuery> combineOrNot(Vector<TermQuery> queryTerms, Vector<TermQuery> docsTerms, boolean flag) {
+        Vector<TermQuery> terms = new Vector<TermQuery>();
+        //Add Terms from the docsTerms
+        terms.addAll(docsTerms);
+        if (flag) {
+            //Add Terms from queryTerms: if term already exists just increment its boost
+            for (int i = 0; i < queryTerms.size(); i++) {
+                TermQuery qTerm = queryTerms.elementAt(i);
+                TermQuery term = find(qTerm, terms);
+                //Term already exists update its boost (temporary not)
+                if (term != null) {
+                    float weight = qTerm.getBoost() + term.getBoost();
+                    term.setBoost(weight);
+                }
+                //Term does not exist; add it
+                else {
+                    terms.add(qTerm);
+                }
+            }
+        }
+
+        return terms;
+    }
+
+    /**
+     * Finds term that is equal
+     *
+     * @return term; if not found -> null
+     */
+    public TermQuery find(TermQuery term, Vector<TermQuery> terms) {
+        TermQuery termF = null;
+
+        Iterator<TermQuery> iterator = terms.iterator();
+        while (iterator.hasNext()) {
+            TermQuery currentTerm = iterator.next();
+            if (term.getTerm().equals(currentTerm.getTerm())) {
+                termF = currentTerm;
+            }
+        }
+
+        return termF;
     }
 
     private void merge(Vector<TermQuery> terms) {
@@ -274,8 +432,12 @@ public class QueryExpansion {
         this.expandedTerms = expandedTerms;
     }
 
-    private int getThreshold() {
-        int threshold = 100;
+    private int getThreshold(boolean flag) {
+        int threshold;
+        if (flag)
+            threshold = 100;
+        else
+            threshold = 30;
 
         return threshold;
     }

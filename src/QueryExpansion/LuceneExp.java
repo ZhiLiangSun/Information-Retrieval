@@ -25,7 +25,7 @@ public class LuceneExp {
     public static void main(String[] args) throws Exception {
 
         LuceneExp exp = new LuceneExp();
-        exp.search("original", 301);
+        exp.search("Sun", 301);
 
     }
 
@@ -58,47 +58,15 @@ public class LuceneExp {
         List<String> topRDocList = new ArrayList<String>();
         ScoreDoc[] scoreDoc = hits.scoreDocs;
 
-        //for the test
-        QueryExpansion q = new QueryExpansion(301, searcher, prop, analyzer, similarity);
-        q.getTopDoc(hits);
-        Vector<Document> vHitsr = q.getDocs("APPLE", hits, q.rDocOriginalRank);
-        Vector<Document> vHitsnr = q.getDocs("APPLE", hits, q.nrDocOriginalRank);
-        int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
-        Vector<QueryTermVector> docsrTermVector = q.getDocsTerms(vHitsr, docNum);
-        Vector<QueryTermVector> docsnrTermVector = q.getDocsTerms(vHitsnr, docNum);
-        float decay = Float.valueOf(prop.getProperty("0.04", "0.0")).floatValue();
+        // Refactor
+        QueryExpansion queryExpansion = new QueryExpansion(method, querynumber, searcher, prop, analyzer, similarity);
+        Query queryr = queryExpansion.expandQuerySun(queryString, hits, true);
+        Query querynr = queryExpansion.expandQuerySun(queryString, hits, false);
 
-        Vector<TermQuery> docsrTerms = q.setBoost(docsrTermVector, 0.75f, decay);
-        Vector<TermQuery> docsnrTerms = q.setBoost(docsnrTermVector, 0.25f, decay);
-
-        List<String> rTermsLists = new ArrayList<>();
-        //List<String> nrTermLists = new ArrayList<>();
-        // store relevant terms
-        for (int i = 0; i < docsrTerms.size(); i++) {
-            String[] rterm = docsrTerms.get(i).toString("content").replace("^", ",").split(",");
-            rTermsLists.add(rterm[0]);
-        }
-        // store non-relevant terms
-        for (int i = 0, size = docsnrTerms.size(); i < size; i++) {
-            String[] nrterm = docsnrTerms.get(i).toString("content").replace("^", ",").split(",");
-            if (rTermsLists.contains(nrterm[0])) {
-                docsnrTerms.remove(i);
-                i--;
-                size--;
-            }
-        }
-
-        Comparator<Object> comparator = new QueryBoostComparator();
-        Collections.sort(docsrTerms, comparator);
-        Collections.sort(docsnrTerms, comparator);
-
-        ExportTerm e = new ExportTerm();
+        //ExportTerm e = new ExportTerm();
         //e.exportxt(docsrTerms, querynumber + "r");
         //e.exportxt(docsnrTerms, querynumber + "nr");
-        e.synTFIDF(docsrTerms);
-
-        Query expandedQuery = q.mergeQueriesSun(docsrTerms);
-        //end for the test
+        //e.synTFIDF(docsrTerms);
 
         int top1000 = 1000;
         if (hits.totalHits < top1000) {

@@ -68,24 +68,15 @@ public class ExportTerm {
         }
 
 
-        //Map<String, Float> sortedMap = new LinkedHashMap<>();
-        //term_score.entrySet().stream()
-        //        .sorted(Map.Entry.comparingByValue())
-        //        .forEach(entry -> sortedMap.put(entry.getKey(),entry.getValue()));
-
-        List<Map.Entry<String, Float>> entries =
-                new ArrayList<Map.Entry<String, Float>>(term_score.entrySet());
-
-        Collections.sort(entries, new Comparator<Map.Entry<String, Float>>() {
-            public int compare(Map.Entry<String, Float> a, Map.Entry<String, Float> b) {
-                return b.getValue().compareTo(a.getValue());
-            }
-        });
-
         Map<String, Float> sortedMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Float> entry : entries) {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }
+        term_score.entrySet().stream()
+                .sorted(new Comparator<Map.Entry<String, Float>>() {
+                    public int compare(Map.Entry<String, Float> a, Map.Entry<String, Float> b) {
+                        return b.getValue().compareTo(a.getValue());
+                    }
+                })
+                .forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+
 
         System.out.println("ok");
     }
