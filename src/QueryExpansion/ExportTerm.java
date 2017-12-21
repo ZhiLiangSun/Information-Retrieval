@@ -38,11 +38,11 @@ public class ExportTerm {
         FileUtils.writeFile(Path.docTerm_Path + name + ".txt", targetStr, "utf-8");
     }
 
-    public void synTFIDF(Vector<TermQuery> docrTerm) {
+    public LinkedHashMap<String, Float> synTFIDF(Vector<TermQuery> docrTerm) {
 
-        Map<String, Float> term_TFIDF = new LinkedHashMap<>();
-        Map<String, Float> term_w2v = new LinkedHashMap<>();
-        Map<String, Float> term_score = new LinkedHashMap<>();
+        LinkedHashMap<String, Float> term_TFIDF = new LinkedHashMap<>();
+        LinkedHashMap<String, Float> term_w2v = new LinkedHashMap<>();
+        LinkedHashMap<String, Float> term_score = new LinkedHashMap<>();
         String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/" + 301 + ".txt");
         Float tmp;
 
@@ -67,17 +67,26 @@ public class ExportTerm {
 
         }
 
+        List<Map.Entry<String, Float>> entries =
+                new ArrayList<Map.Entry<String, Float>>(term_score.entrySet());
 
-        Map<String, Float> sortedMap = new LinkedHashMap<>();
-        term_score.entrySet().stream()
-                .sorted(new Comparator<Map.Entry<String, Float>>() {
-                    public int compare(Map.Entry<String, Float> a, Map.Entry<String, Float> b) {
-                        return b.getValue().compareTo(a.getValue());
-                    }
-                })
-                .forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+        Collections.sort(entries, new Comparator<Map.Entry<String, Float>>() {
+            public int compare(Map.Entry<String, Float> a, Map.Entry<String, Float> b) {
+                return b.getValue().compareTo(a.getValue());
+            }
+        });
 
+        int size = entries.size();
+        for (int i = 0; i < size - 20; i++) {
+            entries.remove(entries.size() - 1);
+        }
 
-        System.out.println("ok");
+        LinkedHashMap<String, Float> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Float> entry : entries) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
+
     }
 }

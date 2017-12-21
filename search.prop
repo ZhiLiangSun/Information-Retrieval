@@ -4,8 +4,8 @@ docs-per-query = 1000
 # query-terms-count (0 - any count) (eg. queries with only 3 terms - 3 )
 query-terms-count = 0
 # out-file - name of the file where results will be written
-out-file = C:\\Users\\Lab714\\Desktop\\Exp_input
-mac-out-file = /Users/zlsun/IdeaProjects/Information-Retrieval/Exp_input/Original_input/
+out-file = C:/Users/Lab714/Desktop/Exp_input/
+mac-out-file = /Users/zlsun/IdeaProjects/Information-Retrieval/Exp_input/
 
 # See QueryExpansion.java CONSTANTS section for details
 #QE.method = Sun

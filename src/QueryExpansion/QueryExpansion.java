@@ -61,6 +61,7 @@ public class QueryExpansion {
     public List<Integer> docOriginalRank;
 
     String method;
+    int termNum = 200; //Rocchio term number
 
     public QueryExpansion(String method, int querynumber, IndexSearcher searcher, Properties prop, Analyzer analyzer, TFIDFSimilarity similarity) {
 
@@ -143,10 +144,17 @@ public class QueryExpansion {
             }
         }
 
-        setExpandedTerms(expandedQueryTerms);
-
         Comparator<Object> comparator = new QueryBoostComparator();
         Collections.sort(expandedQueryTerms, comparator);
+
+        setExpandedTerms(expandedQueryTerms);
+
+        // get top 20 terms
+        //ExportTerm ept = new ExportTerm();
+        //if (flag)
+        //    ept.exportxt(expandedQueryTerms, this.querynumber + "r");
+        //else
+        //    ept.exportxt(expandedQueryTerms, this.querynumber + "nr");
 
 
         Query expandedQuery = mergeQueriesSun(expandedQueryTerms, flag);
@@ -154,73 +162,75 @@ public class QueryExpansion {
     }
 
     public Query mergeQueriesSun(Vector<TermQuery> termQueries, boolean flag) throws QueryNodeException, IOException, ParseException {
-        StringBuffer termBuffer = new StringBuffer();
+
         expansionList = new LinkedHashMap<>();
 
-        // TFIDF expansion
-        System.out.println("-------------------------------------");
-        System.out.println("-----------TFIDF Expansion-----------");
-        System.out.println("-------------------------------------");
+        boolean UnitTest = true;
 
-        int threshold = getThreshold(flag);
-        int index = 0;
+        if (UnitTest) {
+            //Original query expansion
+            ExportTerm ept = new ExportTerm();
+            LinkedHashMap<String, Float> orignal_w2v = ept.synTFIDF(this.expandedTerms);
+            String OW_string = MaptoBuffer(orignal_w2v);
+            setExpandedTerms(OW_string);
 
-        while (true) {
-            TermQuery termQuery = termQueries.elementAt(index);
-            Term term = termQuery.getTerm();
-            String termString = term.text().toLowerCase();
+            Query query2 = new QueryParser("content", analyzer).parse(OW_string);
+            return query2;
 
-            if (stopWords.contains(termString)) {
-                continue;
-            }
-
-            if (termQuery.getBoost() > threshold) {
-                addExpandedTerms(termString, termQuery.getBoost());
-                System.out.println(termString + " " + termQuery.getBoost());
-            }
-
-            if (termQuery.getBoost() < threshold)
-                break;
-
-            index++;
-        }
-
-        //WordNet Expansion
-        if (flag) {
+        } else {
+            // TFIDF expansion
             System.out.println("-------------------------------------");
-            System.out.println("**********WordNet Expansion**********");
+            System.out.println("-----------TFIDF Expansion-----------");
             System.out.println("-------------------------------------");
 
-            int count = expansionList.size();
-            List<String> list = new ArrayList<String>();
-            for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
-                String key = entry.getKey();
-                list.add(key);
+            int threshold = getThreshold(flag);
+            int index = 0;
+
+            while (true) {
+                TermQuery termQuery = termQueries.elementAt(index);
+                Term term = termQuery.getTerm();
+                String termString = term.text().toLowerCase();
+
+                if (stopWords.contains(termString)) {
+                    continue;
+                }
+
+                if (termQuery.getBoost() > threshold) {
+                    addExpandedTerms(termString, termQuery.getBoost());
+                    System.out.println(termString + " " + termQuery.getBoost());
+                }
+
+                if (termQuery.getBoost() < threshold)
+                    break;
+
+                index++;
             }
 
-            for (int i = 0; i < count; i++) {
-                expansionList = WordNet.showSynset(expansionList, list.get(i));
+            //WordNet Expansion
+            if (flag) {
+                System.out.println("-------------------------------------");
+                System.out.println("**********WordNet Expansion**********");
+                System.out.println("-------------------------------------");
+
+                int count = expansionList.size();
+                List<String> list = new ArrayList<String>();
+                for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
+                    String key = entry.getKey();
+                    list.add(key);
+                }
+
+                for (int i = 0; i < count; i++) {
+                    expansionList = WordNet.showSynset(expansionList, list.get(i));
+                }
             }
+
+            //append to buffer and toString()
+            String targetStr = MaptoBuffer(this.expansionList);
+            setExpandedTerms(targetStr);
+
+            Query query = new QueryParser("content", analyzer).parse(targetStr);
+            return query;
         }
-
-        //append to buffer
-        for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
-            String key = entry.getKey();
-            float value = entry.getValue();
-
-            if (stopWords.contains(key)) {
-                System.out.println("Remove: " + key);
-                continue;
-            }
-
-            termBuffer.append(QueryParser.escape(key) + "^" + value + " ");
-        }
-
-        String targetStr = termBuffer.toString();
-        setExpandedTerms(targetStr);
-
-        Query query = new QueryParser("content", analyzer).parse(targetStr);
-        return query;
     }
 
     public Vector<Document> getDocs(TopDocs hits, List<Integer> DocOriginalRank) throws IOException {
@@ -432,6 +442,28 @@ public class QueryExpansion {
         this.expandedTerms = expandedTerms;
     }
 
+    /**
+     * Returns <code> QueryExpansion.TERM_NUM_FLD </code> expanded terms from the most recent query
+     *
+     * @return
+     */
+    public Vector<TermQuery> getExpandedTerms() {
+
+        if (termNum > expandedTerms.size())
+            termNum = expandedTerms.size();
+
+        Vector<TermQuery> terms = new Vector<TermQuery>();
+
+        // Return only necessary number of terms
+        if (method.equals(QueryExpansion.SUN_METHOD)) {
+            terms.addAll(expandedTerms.subList(0, expandedTerms.size()));
+        } else {
+            terms.addAll(expandedTerms.subList(0, termNum));
+        }
+
+        return terms;
+    }
+
     private int getThreshold(boolean flag) {
         int threshold;
         if (flag)
@@ -442,4 +474,19 @@ public class QueryExpansion {
         return threshold;
     }
 
+    public String MaptoBuffer(LinkedHashMap<String, Float> tmpHashMap) {
+        StringBuffer termBuffer = new StringBuffer();
+        for (Map.Entry<String, Float> entry : tmpHashMap.entrySet()) {
+            String key = entry.getKey();
+            float value = entry.getValue();
+
+            if (stopWords.contains(key)) {
+                System.out.println("Remove: " + key);
+                continue;
+            }
+
+            termBuffer.append(QueryParser.escape(key) + "^" + value + " ");
+        }
+        return termBuffer.toString();
+    }
 }
