@@ -1,9 +1,6 @@
 package QueryExpansion;
 
-import Utils.ExpUtils;
-import Utils.FileLoader;
-import Utils.FileUtils;
-import Utils.Path;
+import Utils.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -26,7 +23,7 @@ public class CountDocTerm {
         int averange = 0;
         int sum = 0;
         List<File> files = new ArrayList<File>();
-        String docPath = Path.Data_Path + "/answer/parsed/" + querynumber ;
+        String docPath = Path.Data_Path + "/answer/parsed/" + querynumber;
         //String docPath = Path.Data_Path + "/test/";
 
         files = FileUtils.listAllFiles(docPath);
@@ -38,7 +35,7 @@ public class CountDocTerm {
             type.setIndexed(true);
 
             Document doc = new Document();
-            doc.add(new Field("content", loader.loadContent().trim(), type));
+            doc.add(new Field(Defs.FIELD, loader.loadContent().trim(), type));
 
             sum += ExpUtils.getDocTermCount(doc);
         }

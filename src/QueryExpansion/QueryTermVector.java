@@ -1,5 +1,6 @@
 package QueryExpansion;
 
+import Utils.Defs;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -25,7 +26,7 @@ public class QueryTermVector {
 
     public QueryTermVector(String queryString, Analyzer analyzer) throws IOException {
         if (analyzer != null) {
-            TokenStream stream = analyzer.tokenStream("content", new StringReader(queryString));
+            TokenStream stream = analyzer.tokenStream(Defs.FIELD, new StringReader(queryString));
 
             if (stream != null) {
                 List<String> terms = new ArrayList<String>();

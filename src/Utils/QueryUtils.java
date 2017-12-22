@@ -16,7 +16,7 @@ public class QueryUtils {
     public static float getTF(String term, int docId, IndexReader idxReader) throws IOException,
             NullPointerException {
         // tf(t in d)
-        Terms termFreqVector = idxReader.getTermVector(docId, "content");
+        Terms termFreqVector = idxReader.getTermVector(docId, Defs.FIELD);
         String[] terms = new String[0];
         int freqs[];
         ArrayList<String> temp1 = new ArrayList<String>();

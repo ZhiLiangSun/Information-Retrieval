@@ -102,7 +102,7 @@ public class ExpUtils {
             }
         } else {
             StringBuffer strb = new StringBuffer();
-            String[] txt = doc.getValues("content");
+            String[] txt = doc.getValues(Defs.FIELD);
             for (int i = 0; i < txt.length; i++) {
                 strb.append(txt[i]);
             }

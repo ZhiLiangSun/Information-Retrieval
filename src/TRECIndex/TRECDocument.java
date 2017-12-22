@@ -1,5 +1,6 @@
 package TRECIndex;
 
+import Utils.Defs;
 import Utils.FileLoader;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -17,7 +18,7 @@ public class TRECDocument {
         type.setStored(true);
         type.setStoreTermVectors(true);
 
-        doc.add(new Field("content", loader.loadContent().trim(), type));
+        doc.add(new Field(Defs.FIELD, loader.loadContent().trim(), type));
         doc.add(new StringField("DOCNO", docNo, Field.Store.YES));
 
         return doc;

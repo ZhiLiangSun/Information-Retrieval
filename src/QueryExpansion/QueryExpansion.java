@@ -1,5 +1,6 @@
 package QueryExpansion;
 
+import Utils.Defs;
 import Utils.FileUtils;
 import WordNet.WordNet;
 import org.apache.lucene.analysis.Analyzer;
@@ -174,7 +175,7 @@ public class QueryExpansion {
             String OW_string = MaptoBuffer(orignal_w2v);
             setExpandedTerms(OW_string);
 
-            Query query2 = new QueryParser("content", analyzer).parse(OW_string);
+            Query query2 = new QueryParser(Defs.FIELD, analyzer).parse(OW_string);
             return query2;
 
         } else {
@@ -228,7 +229,7 @@ public class QueryExpansion {
             String targetStr = MaptoBuffer(this.expansionList);
             setExpandedTerms(targetStr);
 
-            Query query = new QueryParser("content", analyzer).parse(targetStr);
+            Query query = new QueryParser(Defs.FIELD, analyzer).parse(targetStr);
             return query;
         }
     }
@@ -239,7 +240,7 @@ public class QueryExpansion {
         int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
 
         // Convert Hits -> Vector
-        for (int i = 0; ((i < docNum) && (i < hits.scoreDocs.length)); i++) {
+        for (int i = 0; ((i < docNum) && (i < hits.scoreDocs.length) && (i < DocOriginalRank.size())); i++) {
             vHits.add(searcher.doc(hits.scoreDocs[DocOriginalRank.get(i)].doc));
         }
 

@@ -20,7 +20,7 @@ public class LuceneExp {
     public static void main(String[] args) throws Exception {
         Date start = new Date();
 
-        int[] topics = Topic.topics_all;
+        int[] topics = Topic.topics_100;
         LuceneExp exp = new LuceneExp();
 
         for (int j = 0; j < topics.length; j++) {
@@ -48,7 +48,7 @@ public class LuceneExp {
 
         BufferedWriter writer;
         int hitsCount = 1000;
-        QueryParser parser = new QueryParser("content", analyzer);
+        QueryParser parser = new QueryParser(Defs.FIELD, analyzer);
         Query query = parser.parse(queryString);
         //Query query = new QueryParser("content",analyzer).parse(queryString);
         TFIDFSimilarity similarity = (TFIDFSimilarity) searcher.getSimilarity();

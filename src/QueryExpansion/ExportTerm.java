@@ -1,5 +1,6 @@
 package QueryExpansion;
 
+import Utils.Defs;
 import Utils.FileUtils;
 import Utils.Path;
 import org.apache.lucene.index.Term;
@@ -54,7 +55,7 @@ public class ExportTerm {
         }
 
         for (int i = 0; i < docrTerm.size(); i++) {
-            String[] rel_term = docrTerm.get(i).toString("content")
+            String[] rel_term = docrTerm.get(i).toString(Defs.FIELD)
                     .replace("^", ",").split(",");
 
             if (term_w2v.get(rel_term[0]) != null) {
