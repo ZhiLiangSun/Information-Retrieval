@@ -1,9 +1,6 @@
 package QueryExpansion;
 
-import Utils.ExpUtils;
-import Utils.FileUtils;
-import Utils.Path;
-import Utils.QueryUtils;
+import Utils.*;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
@@ -16,18 +13,20 @@ import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 
 public class LuceneExp {
 
     public static void main(String[] args) throws Exception {
+        Date start = new Date();
 
+        int[] topics = Topic.topics_all;
         LuceneExp exp = new LuceneExp();
-        exp.search("Sun", 301);
 
+        for (int j = 0; j < topics.length; j++) {
+            exp.search("Sun", topics[j]);
+        }
+        ExpUtils.printTimeUsage(start, new Date());
     }
 
     public void search(String method, int querynumber) throws Exception {
@@ -72,7 +71,7 @@ public class LuceneExp {
         QueryExpansion queryExpansion;
         if (method.equals(QueryExpansion.SUN_METHOD)) {
 
-            outFileName += "Sun/" + querynumber;
+            outFileName += "Sun/Exp_input";
             writer = new BufferedWriter(new FileWriter(new File(outFileName), true));
 
             queryExpansion = new QueryExpansion(method, querynumber, searcher, prop, analyzer, similarity);
@@ -89,7 +88,7 @@ public class LuceneExp {
 
         } else {
 
-            outFileName += "Original/" + querynumber;
+            outFileName += "Original/Exp_input";
             writer = new BufferedWriter(new FileWriter(new File(outFileName), true));
 
             for (int i = 0; (i < hits.totalHits) && (i < relDocCount); i++) {

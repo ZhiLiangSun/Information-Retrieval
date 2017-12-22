@@ -38,12 +38,12 @@ public class ExportTerm {
         FileUtils.writeFile(Path.docTerm_Path + name + ".txt", targetStr, "utf-8");
     }
 
-    public LinkedHashMap<String, Float> synTFIDF(Vector<TermQuery> docrTerm) {
+    public LinkedHashMap<String, Float> synTFIDF(Vector<TermQuery> docrTerm, int querynum) {
 
         LinkedHashMap<String, Float> term_TFIDF = new LinkedHashMap<>();
         LinkedHashMap<String, Float> term_w2v = new LinkedHashMap<>();
         LinkedHashMap<String, Float> term_score = new LinkedHashMap<>();
-        String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/" + 301 + ".txt");
+        String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/" + querynum + ".txt");
         Float tmp;
 
         String delim = " \n";

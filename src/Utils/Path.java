@@ -1,7 +1,5 @@
 package Utils;
 
-import java.util.StringTokenizer;
-
 public class Path {
     public static String Project_Path = System.getProperty("user.dir");
     // /Users/zlsun/IdeaProjects/Information-Retrieval
@@ -25,12 +23,6 @@ public class Path {
         System.out.println("Working Directory = " + System.getProperty("user.home"));
         System.out.println("Working Directory = " + Data_Path);
         System.out.println("Working Directory = " + Index_Path);
-        String message = "crime 0.21982419";
-        String delim = " \n"; //insert here all delimitators
-        StringTokenizer st = new StringTokenizer(message,delim);
-        while (st.hasMoreTokens()) {
-            System.out.println(st.nextToken());
-        }
     }
 }
 
