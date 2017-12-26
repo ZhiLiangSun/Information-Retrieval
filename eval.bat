@@ -1,0 +1,1 @@
+java -jar "C:\Program Files\Lemur\Lemur 4.12\bin\ireval.jar" "C:/Users/Lab714/Desktop/Exp_input/Exp_input" "C:/Users/Lab714/Desktop/Exp_input/qrels.trec6.adhoc.all" > "C:/Users/Lab714/Desktop/Exp_output/Exp_output"

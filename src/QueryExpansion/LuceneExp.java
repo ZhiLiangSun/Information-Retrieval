@@ -1,6 +1,7 @@
 package QueryExpansion;
 
 import Utils.*;
+import com.google.common.io.Files;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
@@ -21,11 +22,24 @@ public class LuceneExp {
         Date start = new Date();
 
         int[] topics = Topic.topics_100;
+        String[] methods = {"Original", "Sun"};
         LuceneExp exp = new LuceneExp();
 
-        for (int j = 0; j < topics.length; j++) {
-            exp.search("Sun", topics[j]);
+        for (int i = 0; i < methods.length; i++) {
+
+            for (int j = 0; j < topics.length; j++) {
+                exp.search(methods[i], topics[j]);
+            }
+
+            // run evaluate bat
+            CMD.run(methods[i]);
+
+            // rename the input file
+            File oldFile = new File("C:/Users/Lab714/Desktop/Exp_input/Exp_input");
+            File newFile = new File(oldFile.getParent(), methods[i] + "_input");
+            Files.move(oldFile, newFile);
         }
+
         ExpUtils.printTimeUsage(start, new Date());
     }
 
@@ -46,7 +60,7 @@ public class LuceneExp {
         IndexSearcher searcher = new IndexSearcher(idxReader);
         StandardAnalyzer analyzer = new StandardAnalyzer(new CharArraySet(FileUtils.getStopWords(), true));
 
-        BufferedWriter writer;
+        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outFileName), true));
         int hitsCount = 1000;
         QueryParser parser = new QueryParser(Defs.FIELD, analyzer);
         Query query = parser.parse(queryString);
@@ -71,9 +85,6 @@ public class LuceneExp {
         QueryExpansion queryExpansion;
         if (method.equals(QueryExpansion.SUN_METHOD)) {
 
-            outFileName += "Sun/Exp_input";
-            writer = new BufferedWriter(new FileWriter(new File(outFileName), true));
-
             queryExpansion = new QueryExpansion(method, querynumber, searcher, prop, analyzer, similarity);
             Query queryr = queryExpansion.expandQuerySun(queryString, hits, true);
             //Query querynr = queryExpansion.expandQuerySun(queryString, hits, false);
@@ -87,10 +98,6 @@ public class LuceneExp {
                     relDocCount, searcher, similarity, idxReader, topRDocList, top1000);
 
         } else {
-
-            outFileName += "Original/Exp_input";
-            writer = new BufferedWriter(new FileWriter(new File(outFileName), true));
-
             for (int i = 0; (i < hits.totalHits) && (i < relDocCount); i++) {
                 Document doc = searcher.doc(hits.scoreDocs[i].doc);
                 String docno = ((Field) doc.getField("DOCNO")).stringValue().trim();
