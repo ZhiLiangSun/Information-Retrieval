@@ -283,7 +283,7 @@ public class QueryExpansion {
             Document doc = hits.elementAt(i);
             // Get text of the document and append it
             StringBuffer docTxtBuffer = new StringBuffer();
-            String[] docTxtFlds = doc.getValues("content");
+            String[] docTxtFlds = doc.getValues(Defs.FIELD);
             if (docTxtFlds.length == 0)
                 continue;
             for (int j = 0; j < docTxtFlds.length; j++) {
@@ -325,7 +325,7 @@ public class QueryExpansion {
             for (int i = 0; i < docTerms.size(); i++) {
                 // Create Term
                 String termTxt = termsTxt[i];
-                Term term = new Term("content", termTxt);
+                Term term = new Term(Defs.FIELD, termTxt);
 
                 // Calculate weight
                 float tf = termFrequencies[i];
@@ -426,7 +426,7 @@ public class QueryExpansion {
         // setBoost for each of the terms of each of the docs
         for (int i = 0; i < splitArray.length; i++) {
             String termTxt = splitArray[i];
-            Term term = new Term("content", termTxt);
+            Term term = new Term(Defs.FIELD, termTxt);
 
             // Create TermQuery and add it to the collection
             TermQuery termQuery = new TermQuery(term);
