@@ -38,6 +38,8 @@ public class LuceneExp {
             File oldFile = new File("C:/Users/Lab714/Desktop/Exp_input/Exp_input");
             File newFile = new File(oldFile.getParent(), methods[i] + "_input");
             Files.move(oldFile, newFile);
+
+            ExpUtils.writeToExcel("C:/Users/LAB714/Desktop/Exp_output/" + methods[i], topics, 1);
         }
 
         ExpUtils.printTimeUsage(start, new Date());
