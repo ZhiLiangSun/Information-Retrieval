@@ -46,7 +46,17 @@ public class ExportTerm {
         LinkedHashMap<String, Float> term_score = new LinkedHashMap<>();
         String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/" + querynum + ".txt");
         Float tmp;
+        float avg, sum = 0;
 
+        //get top 20 TF-IDF average
+        for (int k = 0; k < 20; k++) {
+            String[] rel_term = docrTerm.get(k).toString(Defs.FIELD)
+                    .replace("^", ",").split(",");
+            sum += Float.parseFloat(rel_term[1]);
+        }
+        avg = sum / 20;
+
+        //store txt to LinkedHashMap
         String delim = " \n";
         StringTokenizer st = new StringTokenizer(syn, delim);
 
@@ -54,6 +64,7 @@ public class ExportTerm {
             term_w2v.put(st.nextToken(), Float.parseFloat(st.nextToken()));
         }
 
+        //get terms by TF-IDF
         for (int i = 0; i < docrTerm.size(); i++) {
             String[] rel_term = docrTerm.get(i).toString(Defs.FIELD)
                     .replace("^", ",").split(",");
@@ -65,9 +76,19 @@ public class ExportTerm {
                 term_score.put(rel_term[0], tmp);
 
             }
-
         }
 
+        //increase term boost which similarity >0.5
+        for (Map.Entry<String, Float> w2v : term_w2v.entrySet()) {
+            if (w2v.getValue() > 0.5 && term_score.get(w2v.getKey()) != null)
+                term_score.put(w2v.getKey(), w2v.getValue() * avg + term_score.get(w2v.getKey()));
+            else if (w2v.getValue() > 0.5)
+                term_score.put(w2v.getKey(), w2v.getValue() * avg);
+            else if (w2v.getValue() < 0.5)
+                break;
+        }
+
+        //sort term_score
         List<Map.Entry<String, Float>> entries =
                 new ArrayList<Map.Entry<String, Float>>(term_score.entrySet());
 
@@ -77,6 +98,7 @@ public class ExportTerm {
             }
         });
 
+        //store top 20 terms
         int size = entries.size();
         for (int i = 0; i < size - 20; i++) {
             entries.remove(entries.size() - 1);

@@ -22,7 +22,7 @@ public class LuceneExp {
         Date start = new Date();
 
         int[] topics = Topic.topics_100;
-        String[] methods = {"Original", "Sun"};
+        String[] methods = {"Sun"};
         LuceneExp exp = new LuceneExp();
 
         for (int i = 0; i < methods.length; i++) {

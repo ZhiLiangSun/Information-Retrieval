@@ -170,6 +170,10 @@ public class QueryExpansion {
 
         if (UnitTest) {
             //Original query expansion
+            System.out.println("-------------------------------------");
+            System.out.println("------Original query Expansion-------");
+            System.out.println("-------------------------------------");
+
             ExportTerm ept = new ExportTerm();
             LinkedHashMap<String, Float> orignal_w2v = ept.synTFIDF(this.expandedTerms, this.querynumber);
             String OW_string = MaptoBuffer(orignal_w2v);
