@@ -120,7 +120,7 @@ public class QueryExpansion {
         if (flag) {
             for (int i = 0; i < expandedQueryTerms.size(); i++) {
                 String[] rterm = expandedQueryTerms.get(i)
-                        .toString("contents").replace("^", ",").split(",");
+                        .toString(Defs.FIELD).replace("^", ",").split(",");
                 rTermsLists.add(rterm[0]);
             }
             //put querystring into rTermsLists
@@ -136,7 +136,7 @@ public class QueryExpansion {
         else {
             for (int i = 0, size = expandedQueryTerms.size(); i < size; i++) {
                 String[] nrterm = expandedQueryTerms.get(i)
-                        .toString("contents").replace("^", ",").split(",");
+                        .toString(Defs.FIELD).replace("^", ",").split(",");
                 if (rTermsLists.contains(nrterm[0])) {
                     expandedQueryTerms.remove(i);
                     i--;
@@ -150,13 +150,15 @@ public class QueryExpansion {
 
         setExpandedTerms(expandedQueryTerms);
 
-        // get top 20 terms
-        //ExportTerm ept = new ExportTerm();
-        //if (flag)
-        //    ept.exportxt(expandedQueryTerms, this.querynumber + "r");
-        //else
-        //    ept.exportxt(expandedQueryTerms, this.querynumber + "nr");
-
+        //get top 20 terms
+        boolean reExport = false;
+        if (reExport) {
+            ExportTerm ept = new ExportTerm();
+            if (flag)
+                ept.exportxt(expandedQueryTerms, this.querynumber + "r");
+            else
+                ept.exportxt(expandedQueryTerms, this.querynumber + "nr");
+        }
 
         Query expandedQuery = mergeQueriesSun(expandedQueryTerms, flag);
         return expandedQuery;
@@ -168,7 +170,7 @@ public class QueryExpansion {
 
         boolean UnitTest = true;
 
-        if (UnitTest) {
+        if (UnitTest && flag) {
             //Original query expansion
             System.out.println("-------------------------------------");
             System.out.println("------Original query Expansion-------");

@@ -22,7 +22,8 @@ public class LuceneExp {
         Date start = new Date();
 
         int[] topics = Topic.topics_100;
-        String[] methods = {"Sun"};
+        String o = "Original";
+        String[] methods = {o, "Sun"};
         LuceneExp exp = new LuceneExp();
 
         for (int i = 0; i < methods.length; i++) {
@@ -89,14 +90,17 @@ public class LuceneExp {
 
             queryExpansion = new QueryExpansion(method, querynumber, searcher, prop, analyzer, similarity);
             Query queryr = queryExpansion.expandQuerySun(queryString, hits, true);
-            //Query querynr = queryExpansion.expandQuerySun(queryString, hits, false);
 
-            System.out.println("Expanded Query: " + queryr.toString("contents"));
-            hits = searcher.search(queryr, 18948);
+            System.out.println("Expanded Query: " + queryr.toString(Defs.FIELD));
+            TopDocs hitsr = searcher.search(queryr, 18948);
             Vector<TermQuery> expandedQueryTerms = queryExpansion.getExpandedTerms();
             System.out.println("Expanded Size: " + queryExpansion.getExpandedTerms().size());
 
-            generateOutput(method, hits, expandedQueryTerms, querynumber, writer,
+            //Query querynr = queryExpansion.expandQuerySun(queryString, hits, false);
+            //TopDocs hitsnr = searcher.search(querynr, 18948);
+
+            // only generate positive QE
+            generateOutput(method, hitsr, expandedQueryTerms, querynumber, writer,
                     relDocCount, searcher, similarity, idxReader, topRDocList, top1000);
 
         } else {
