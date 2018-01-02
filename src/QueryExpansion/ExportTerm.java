@@ -63,11 +63,10 @@ public class ExportTerm {
         LinkedHashMap<String, Float> term_w2v = new LinkedHashMap<>();
         LinkedHashMap<String, Float> term_score = new LinkedHashMap<>();
         String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/" + querynum + ".txt");
-        Float tmp;
+        float tmp;
         float avg, sum = 0;
 
-        //get top 20 TF-IDF average
-        //*****later*****
+        //get top 1000 TF-IDF average
         for (int k = 0; k < 1000; k++) {
             String[] rel_term = docrTerm.get(k).toString(Defs.FIELD)
                     .replace("^", ",").split(",");
@@ -97,17 +96,23 @@ public class ExportTerm {
             }
         }
 
-        //increase term boost which similarity >0.5
-        //*****later*****
+        //increase term boost which similarity > 0.5
         for (Map.Entry<String, Float> w2v : term_w2v.entrySet()) {
             if (w2v.getValue() > 0.5 && term_score.get(w2v.getKey()) != null)
                 term_score.put(w2v.getKey(), w2v.getValue() * avg + term_score.get(w2v.getKey()));
-                //continue;
                 //else if (w2v.getValue() > 0.5)
                 //    term_score.put(w2v.getKey(), w2v.getValue() * avg);
             else if (w2v.getValue() < 0.5)
                 break;
         }
+
+        //filter NRO
+        //String nro = FileUtils.readFile(Path.docTerm_Path + "allNRO/" + querynum + "nr");
+        //List<String> nro_List = new ArrayList<String>(Arrays.asList(nro.split(" ")));
+        //for (String s : nro_List) {
+        //    if (term_score.get(s) != null)
+        //        term_score.remove(s);
+        //}
 
         //sort term_score
         List<Map.Entry<String, Float>> entries =
