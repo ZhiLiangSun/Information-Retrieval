@@ -51,7 +51,7 @@ public class ExpUtils {
                 workbook = Workbook.createWorkbook(excel);
                 sheet0 = workbook.createSheet("Overview", 0);
                 sheet1 = workbook.createSheet("Original", 1);
-                sheet2 = workbook.createSheet("Rocchio", 2);
+                sheet2 = workbook.createSheet("Shawn", 2); //Rocchio
 
                 if (system == 0) {
                     sheet3 = workbook.createSheet("Shawn", 3);
@@ -104,7 +104,7 @@ public class ExpUtils {
                 case "Original":
                     methodType = 0;
                     break;
-                case "Rocchio":
+                case "Shawn": //Rocchio
                     methodType = 1;
                     allCol1 += 1;
                     allCol2 += 1;
@@ -232,7 +232,7 @@ public class ExpUtils {
 
             if (fileName.equals("Original") || fileName.equals("Original 1000")) {
                 titleFormat.setBackground(Colour.LIGHT_ORANGE);
-            } else if (fileName.equals("Rocchio") || fileName.equals("Rocchio 1000")) {
+            } else if (fileName.equals("Shawn") || fileName.equals("Rocchio 1000")) { //Rocchio
                 titleFormat.setBackground(Colour.LIME);
             } else {
                 titleFormat.setBackground(Colour.LIGHT_BLUE);

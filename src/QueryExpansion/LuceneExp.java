@@ -26,6 +26,9 @@ public class LuceneExp {
         String[] methods = {o, "Sun"};
         LuceneExp exp = new LuceneExp();
 
+        //Shawn result
+        ExpUtils.writeToExcel("C:/Users/LAB714/Desktop/Exp_output/" + "Shawn", topics, 1);
+
         for (int i = 0; i < methods.length; i++) {
 
             for (int j = 0; j < topics.length; j++) {

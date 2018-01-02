@@ -168,23 +168,15 @@ public class QueryExpansion {
 
         expansionList = new LinkedHashMap<>();
 
-        boolean UnitTest = true;
-
-        if (UnitTest && flag) {
+        if (flag) {
             //Original query expansion
             System.out.println("-------------------------------------");
             System.out.println("------Original query Expansion-------");
             System.out.println("-------------------------------------");
 
             ExportTerm ept = new ExportTerm();
-            LinkedHashMap<String, Float> orignal_w2v = ept.synTFIDF(this.expandedTerms, this.querynumber);
-            String OW_string = MaptoBuffer(orignal_w2v);
-            setExpandedTerms(OW_string);
+            LinkedHashMap<String, Float> original_w2v = ept.synTFIDF(this.expandedTerms, this.querynumber);
 
-            Query query2 = new QueryParser(Defs.FIELD, analyzer).parse(OW_string);
-            return query2;
-
-        } else {
             // TFIDF expansion
             System.out.println("-------------------------------------");
             System.out.println("-----------TFIDF Expansion-----------");
@@ -214,28 +206,31 @@ public class QueryExpansion {
             }
 
             //WordNet Expansion
-            if (flag) {
-                System.out.println("-------------------------------------");
-                System.out.println("**********WordNet Expansion**********");
-                System.out.println("-------------------------------------");
+            System.out.println("-------------------------------------");
+            System.out.println("**********WordNet Expansion**********");
+            System.out.println("-------------------------------------");
 
-                int count = expansionList.size();
-                List<String> list = new ArrayList<String>();
-                for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
-                    String key = entry.getKey();
-                    list.add(key);
-                }
-
-                for (int i = 0; i < count; i++) {
-                    expansionList = WordNet.showSynset(expansionList, list.get(i));
-                }
+            int count = expansionList.size();
+            List<String> list = new ArrayList<String>();
+            for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
+                String key = entry.getKey();
+                list.add(key);
             }
+
+            for (int i = 0; i < count; i++) {
+                expansionList = WordNet.showSynset(expansionList, list.get(i));
+            }
+
+            expansionList = filterExpandedTerms(original_w2v);
 
             //append to buffer and toString()
             String targetStr = MaptoBuffer(this.expansionList);
             setExpandedTerms(targetStr);
 
             Query query = new QueryParser(Defs.FIELD, analyzer).parse(targetStr);
+            return query;
+        } else {
+            Query query = new QueryParser(Defs.FIELD, analyzer).parse(" ");
             return query;
         }
     }
@@ -422,6 +417,25 @@ public class QueryExpansion {
         if (!expansionList.containsKey(term)) {
             expansionList.put(term, boost);
         }
+    }
+
+    private LinkedHashMap<String, Float> filterExpandedTerms(LinkedHashMap<String, Float> expansionMap) {
+
+        for (Map.Entry<String, Float> tmp : this.expansionList.entrySet()) {
+            if (expansionMap.get(tmp.getKey()) == null)
+                expansionMap.put(tmp.getKey(), tmp.getValue());
+        }
+
+        LinkedHashMap<String, Float> sortedMap = new LinkedHashMap<>();
+        expansionMap.entrySet().stream()
+                .sorted(new Comparator<Map.Entry<String, Float>>() {
+                    public int compare(Map.Entry<String, Float> a, Map.Entry<String, Float> b) {
+                        return b.getValue().compareTo(a.getValue());
+                    }
+                })
+                .forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+
+        return sortedMap;
     }
 
     private void setExpandedTerms(String str) {
