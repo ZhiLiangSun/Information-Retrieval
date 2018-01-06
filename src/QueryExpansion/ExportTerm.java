@@ -100,7 +100,7 @@ public class ExportTerm {
         for (Map.Entry<String, Float> w2v : term_w2v.entrySet()) {
             if (w2v.getValue() > 0.5 && term_score.get(w2v.getKey()) != null)
                 term_score.put(w2v.getKey(), w2v.getValue() * avg + term_score.get(w2v.getKey()));
-                //else if (w2v.getValue() > 0.5)
+                //else if (w2v.getValue() > 0.6)
                 //    term_score.put(w2v.getKey(), w2v.getValue() * avg);
             else if (w2v.getValue() < 0.5)
                 break;

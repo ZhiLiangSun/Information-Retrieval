@@ -1,5 +1,5 @@
 package Utils;
 
 public class Defs {
-    public static final String FIELD = "content";
+    public static final String FIELD = "contents";
 }

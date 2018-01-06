@@ -58,7 +58,7 @@ public class LuceneExp {
         Properties prop = new Properties();
         prop.load(new FileInputStream("search.prop"));
 
-        String indexDir = Path.Index_Path + querynumber;
+        String indexDir = Path.YIndex_Path + querynumber;
         String outFileName = prop.getProperty("mac-out-file");
         int relDocCount = Integer.valueOf(prop.getProperty("docs-per-query")).intValue();
 
