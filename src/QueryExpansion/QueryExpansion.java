@@ -3,6 +3,8 @@ package QueryExpansion;
 import Utils.Defs;
 import Utils.FileUtils;
 import WordNet.WordNet;
+import CoOccurrence.*;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
@@ -63,6 +65,9 @@ public class QueryExpansion {
 
     String method;
     int termNum = 200; //Rocchio term number
+
+    //boosts
+    float coOccurrencePairBoost = 1f;
 
     public QueryExpansion(String method, int querynumber, IndexSearcher searcher, Properties prop, Analyzer analyzer, TFIDFSimilarity similarity) {
 
@@ -221,6 +226,22 @@ public class QueryExpansion {
                 expansionList = WordNet.showSynset(expansionList, list.get(i));
             }
 
+            //Co-occurrence Expansion
+            System.out.println("-------------------------------------");
+            System.out.println("Co-occurrence Expansion from Documents");
+            System.out.println("-------------------------------------");
+
+            CoOccurrence coOccurrence = new CoOccurrence(querynumber, stopWords);
+            List<Pair> coOccurrencePairs;
+
+            coOccurrencePairs = coOccurrence.getCoOccurrencePairsFromDocuments(15,
+                    top20RDocIdList, searcher);
+            calculateCoOccurrencePairSemanticRelation(coOccurrencePairs);
+
+            System.out.println("-------------------------------------");
+            System.out.println("Co-occurrence Expansion from Phrases");
+            System.out.println("-------------------------------------");
+
             expansionList = filterExpandedTerms(original_w2v);
 
             //append to buffer and toString()
@@ -232,6 +253,35 @@ public class QueryExpansion {
         } else {
             Query query = new QueryParser(Defs.FIELD, analyzer).parse(" ");
             return query;
+        }
+    }
+
+    private void calculateCoOccurrencePairSemanticRelation(List<Pair> coOccurrencePairs) throws IOException {
+        float ngdExpectation = 0.7f;
+
+        for (int i = 0; i < coOccurrencePairs.size(); i++) {
+            String term1 = coOccurrencePairs.get(i).getTerm1();
+            String term2 = coOccurrencePairs.get(i).getTerm2();
+
+            if (expansionList.containsKey(term1) || expansionList.containsKey(term2)) {
+                addExpandedTerms(term1, coOccurrencePairBoost);
+                addExpandedTerms(term2, coOccurrencePairBoost);
+            } else {
+                // calculate NGD
+                for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
+                    String key = entry.getKey();
+                    if (GoogleSearch.calculateDistance(term1, key) < ngdExpectation) {
+                        addExpandedTerms(term1, coOccurrencePairBoost);
+                        addExpandedTerms(term2, coOccurrencePairBoost);
+                        break;
+                    }
+                    if (GoogleSearch.calculateDistance(term2, key) < ngdExpectation) {
+                        addExpandedTerms(term1, coOccurrencePairBoost);
+                        addExpandedTerms(term2, coOccurrencePairBoost);
+                        break;
+                    }
+                }
+            }
         }
     }
 

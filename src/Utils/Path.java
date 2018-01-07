@@ -18,6 +18,7 @@ public class Path {
 
     public static String WORDNET_DIR_PATH = Project_Path + "/res/WordNet";
     public static String NGD_Path = Project_Path + "/res/ngd.txt";
+    public static String Co_Path = Project_Path + "/res/CoOccurrence/";
 
     public static void main(String[] args) {
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
