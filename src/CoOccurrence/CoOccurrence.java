@@ -1,8 +1,17 @@
 package CoOccurrence;
 
+import Utils.Defs;
 import Utils.Path;
+
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import com.google.common.io.Files;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -45,6 +54,125 @@ public class CoOccurrence {
         }
 
         return getCoOccurrencePairs(isFileExists, threshold, tables);
+    }
+
+    /**
+     * get Co-Occurrence pairs from phrases
+     *
+     * @param threshold
+     * @return Co-Occurrence pairs
+     */
+    public List<Pair> getCoOccurrencePairsFromPhrases(int threshold, List<String> top20RelevantDocList) {
+        File file = new File(fromPhrasesDir + queryNumber);
+        boolean isFileExists = file.exists();
+
+        if (!isFileExists) {
+            generateCoOccurrencePairsFromPhrases(top20RelevantDocList);
+        }
+
+        List<Pair> coOccurrencePairs = new ArrayList<Pair>();
+        String pattern = "[A-Za-z]+$";
+
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            String line = null;
+            String[] splitString;
+            String term1;
+            String term2;
+            int count;
+
+            while ((line = br.readLine()) != null) {
+                splitString = line.split("\t");
+                term1 = splitString[0];
+                term2 = splitString[1];
+                count = Integer.valueOf(splitString[2]);
+
+                // if co-occurrence count is greater than threshold then add co-occurrence pair to list
+                if (count >= threshold) {
+                    // remove stop words and numbers
+                    if (!stopWords.contains(term1) && !stopWords.contains(term2) &&
+                            !containsPair(coOccurrencePairs, term1, term2) && !containsPair(coOccurrencePairs, term2, term1) &&
+                            term1.matches(pattern) && term2.matches(pattern)) {
+                        coOccurrencePairs.add(new Pair(term1, term2, count));
+                    }
+                }
+            }
+
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // sort coCurrencePairs by co-occurrence count
+        Collections.sort(coOccurrencePairs, new PairComparator());
+        for (int i = 0; i < coOccurrencePairs.size(); i++) {
+            System.out.println(coOccurrencePairs.get(i).getTerm1() + ", " + coOccurrencePairs.get(i).getTerm2() + " " + coOccurrencePairs.get(i).getCoOccurrenceCount());
+        }
+
+        return coOccurrencePairs;
+    }
+
+    /**
+     * generate Co-Occurrence pairs from phrases
+     */
+    public void generateCoOccurrencePairsFromPhrases(List<String> top20RelevantDocList) {
+        Configuration conf = new Configuration();
+        //conf.set("mapreduce.output.basename", "xxxx"); // part-r-00000 to xxxx-r-00000
+
+        Job job;
+        try {
+            job = new Job(conf, "Co-Occurrence");
+            job.setJarByClass(CoOccurrence.class);
+
+            job.setMapperClass(MyMapper.class);
+            job.setMapOutputKeyClass(TextPair.class);
+            job.setMapOutputValueClass(IntWritable.class);
+
+            job.setCombinerClass(MyReducer.class);
+
+            // the reduce output is Text, IntWritable
+            job.setReducerClass(MyReducer.class);
+            job.setOutputKeyClass(TextPair.class);
+            job.setOutputValueClass(IntWritable.class);
+
+            File source = new File(Path.Co_Answer_Path + queryNumber);
+            File[] docs = source.listFiles();
+            for (int i = 0; i < docs.length; i++) {
+                if (top20RelevantDocList.contains(docs[i].getName())) {
+                    FileInputFormat.addInputPath(job, new org.apache.hadoop.fs.Path(docs[i].getAbsolutePath()));
+                }
+            }
+
+            FileOutputFormat.setOutputPath(job, new org.apache.hadoop.fs.Path(Path.Test_Path));
+            job.waitForCompletion(true);
+
+            // rename the file
+            File oldFile = new File(Path.Test_Path + "/part-r-00000");
+            File newFile = new File(oldFile.getParent(), String.valueOf(queryNumber));
+            Files.move(oldFile, newFile);
+            Files.move(newFile, new File(fromPhrasesDir + queryNumber));
+
+            File test = new File(Path.Test_Path);
+
+            // delete unnecessary files
+            File[] files = test.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                files[i].delete();
+            }
+            test.delete();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private List<Pair> getCoOccurrencePairs(Boolean isFileExists, int threshold, List<Table<String, String, Integer>> tables) {
@@ -137,7 +265,7 @@ public class CoOccurrence {
 
         IndexReader indexReader = searcher.getIndexReader();
         Bits liveDocs = MultiFields.getLiveDocs(indexReader);
-        TermsEnum termEnum = MultiFields.getTerms(indexReader, "contents").iterator(null);
+        TermsEnum termEnum = MultiFields.getTerms(indexReader, Defs.FIELD).iterator(null);
         BytesRef bytesRef;
 
         while ((bytesRef = termEnum.next()) != null) {
