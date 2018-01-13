@@ -234,7 +234,7 @@ public class QueryExpansion {
             CoOccurrence coOccurrence = new CoOccurrence(querynumber, stopWords);
             List<Pair> coOccurrencePairs;
 
-            coOccurrencePairs = coOccurrence.getCoOccurrencePairsFromDocuments(15,
+            coOccurrencePairs = coOccurrence.getCoOccurrencePairsFromDocuments(10,
                     top20RDocIdList, searcher);
             calculateCoOccurrencePairSemanticRelation(coOccurrencePairs);
 
@@ -242,7 +242,7 @@ public class QueryExpansion {
             System.out.println("Co-occurrence Expansion from Phrases");
             System.out.println("-------------------------------------");
 
-            coOccurrencePairs = coOccurrence.getCoOccurrencePairsFromPhrases(15, top20RDocList);
+            coOccurrencePairs = coOccurrence.getCoOccurrencePairsFromPhrases(10, top20RDocList);
             calculateCoOccurrencePairSemanticRelation(coOccurrencePairs);
 
             expansionList = filterExpandedTerms(original_w2v);

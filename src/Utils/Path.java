@@ -18,7 +18,7 @@ public class Path {
     public static String word2vec_wPath = "C:/Users/Lab714/Desktop/Word2Vec/res/";
 
     public static String WORDNET_DIR_PATH = Project_Path + "/res/WordNet";
-    public static String WORDNET_MAP_PATH = "res/WordNet/3.1/map";
+    public static String WORDNET_MAP_PATH = Project_Path + "res/WordNet/3.1/map";
     public static String NGD_Path = Project_Path + "/res/ngd.txt";
     public static String Co_Path = Project_Path + "/res/CoOccurrence/";
 
