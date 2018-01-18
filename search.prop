@@ -19,6 +19,6 @@ rocchio.beta = 0.75
 rocchio.gamma = 0.25
 
 #Compatibility
-#ExportTerm - synTFIDF
+#ExportTerm - syn_Query, syn_docTerm
 #LuceneExp - mac-out-file
 #file_properties - dictionary_path

@@ -57,7 +57,7 @@ public class ExportTerm {
         FileUtils.writeFile(Path.docTerm_Path + name, targetStr, "utf-8");
     }
 
-    public LinkedHashMap<String, Float> synTFIDF(Vector<TermQuery> docrTerm, int querynum) {
+    public LinkedHashMap<String, Float> syn_Query(Vector<TermQuery> docrTerm, int querynum) {
 
         LinkedHashMap<String, Float> term_TFIDF = new LinkedHashMap<>();
         LinkedHashMap<String, Float> term_w2v = new LinkedHashMap<>();
@@ -137,5 +137,30 @@ public class ExportTerm {
 
         return sortedMap;
 
+    }
+
+    public LinkedHashMap<String, Float> syn_docTerm(int querynum) {
+
+        String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/docR/" + querynum);
+        LinkedHashMap<String, Float> term_w2v = new LinkedHashMap<>();
+
+        float ngdExpectation = 0.7f, boost = 0.9f;
+        String delim = " \n", docTerm;
+        StringTokenizer st = new StringTokenizer(syn, delim);
+        int index = 30;
+
+        while (st.hasMoreTokens()) {
+            if (index < 30) {
+                String term = st.nextToken();
+                float sim = Float.parseFloat(st.nextToken());
+                if (sim > 0.6)
+                    term_w2v.put(term, boost);
+                index++;
+            } else {
+                docTerm = st.nextToken();
+                index = 0;
+            }
+        }
+        return term_w2v;
     }
 }

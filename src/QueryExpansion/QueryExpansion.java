@@ -172,6 +172,7 @@ public class QueryExpansion {
     public Query mergeQueriesSun(Vector<TermQuery> termQueries, boolean flag) throws QueryNodeException, IOException, ParseException {
 
         expansionList = new LinkedHashMap<>();
+        LinkedHashMap<String, Float> Final_W2v;
 
         if (flag) {
             //Original query expansion
@@ -180,7 +181,17 @@ public class QueryExpansion {
             System.out.println("-------------------------------------");
 
             ExportTerm ept = new ExportTerm();
-            LinkedHashMap<String, Float> original_w2v = ept.synTFIDF(this.expandedTerms, this.querynumber);
+            LinkedHashMap<String, Float> original_w2v = ept.syn_Query(this.expandedTerms, this.querynumber);
+
+            //DocTerm expansion
+            System.out.println("-------------------------------------");
+            System.out.println("------DocTerm query Expansion-------");
+            System.out.println("-------------------------------------");
+
+            LinkedHashMap<String, Float> docTerm_w2v = ept.syn_docTerm(querynumber);
+            docTerm_w2v.putAll(original_w2v);
+            Final_W2v = docTerm_w2v;
+
 
             // TFIDF expansion
             System.out.println("-------------------------------------");
@@ -245,7 +256,7 @@ public class QueryExpansion {
             coOccurrencePairs = coOccurrence.getCoOccurrencePairsFromPhrases(10, top20RDocList);
             calculateCoOccurrencePairSemanticRelation(coOccurrencePairs);
 
-            expansionList = filterExpandedTerms(original_w2v);
+            expansionList = filterExpandedTerms(Final_W2v);
 
             //append to buffer and toString()
             String targetStr = MaptoBuffer(this.expansionList);
