@@ -1,9 +1,9 @@
 package QueryExpansion;
 
+import CoOccurrence.CoOccurrence;
+import CoOccurrence.Pair;
 import Utils.Defs;
 import Utils.FileUtils;
-import WordNet.WordNet;
-import CoOccurrence.*;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -222,20 +222,20 @@ public class QueryExpansion {
             }
 
             //WordNet Expansion
-            System.out.println("-------------------------------------");
-            System.out.println("**********WordNet Expansion**********");
-            System.out.println("-------------------------------------");
-
-            int count = expansionList.size();
-            List<String> list = new ArrayList<String>();
-            for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
-                String key = entry.getKey();
-                list.add(key);
-            }
-
-            for (int i = 0; i < count; i++) {
-                expansionList = WordNet.showSynset(expansionList, list.get(i));
-            }
+            //System.out.println("-------------------------------------");
+            //System.out.println("**********WordNet Expansion**********");
+            //System.out.println("-------------------------------------");
+            //
+            //int count = expansionList.size();
+            //List<String> list = new ArrayList<String>();
+            //for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
+            //    String key = entry.getKey();
+            //    list.add(key);
+            //}
+            //
+            //for (int i = 0; i < count; i++) {
+            //    expansionList = WordNet.showSynset(expansionList, list.get(i));
+            //}
 
             //Co-occurrence Expansion
             System.out.println("-------------------------------------");

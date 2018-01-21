@@ -6,6 +6,7 @@ import Utils.Path;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
 
+import java.io.IOException;
 import java.util.*;
 
 public class ExportTerm {
@@ -139,13 +140,13 @@ public class ExportTerm {
 
     }
 
-    public LinkedHashMap<String, Float> syn_docTerm(int querynum) {
+    public LinkedHashMap<String, Float> syn_docTerm(int querynum) throws IOException {
 
         String syn = FileUtils.readFile(Path.word2vec_Path + "synTerm/docR/" + querynum);
         LinkedHashMap<String, Float> term_w2v = new LinkedHashMap<>();
 
         float ngdExpectation = 0.7f, boost = 0.9f;
-        String delim = " \n", docTerm;
+        String delim = " \n", docTerm = "";
         StringTokenizer st = new StringTokenizer(syn, delim);
         int index = 30;
 
@@ -153,8 +154,9 @@ public class ExportTerm {
             if (index < 30) {
                 String term = st.nextToken();
                 float sim = Float.parseFloat(st.nextToken());
-                if (sim > 0.6)
-                    term_w2v.put(term, boost);
+                if (sim > 0.7)
+                    if (GoogleSearch.calculateDistance(term, docTerm) < ngdExpectation)
+                        term_w2v.put(term, boost);
                 index++;
             } else {
                 docTerm = st.nextToken();

@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 public class GoogleSearch {
-    protected final static double logN = Math.log(1.0e12);
+    protected final static double logN = Math.log(4.5e10);
 
     public static void main(String[] args) throws Exception {
 
