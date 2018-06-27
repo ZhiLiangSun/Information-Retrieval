@@ -54,14 +54,8 @@ public class QueryExpansion {
     private LinkedHashMap<String, Float> expansionList;
 
     public List<String> top20RDocList;
-    public List<String> top20NRDocList;
     public List<Integer> top20RDocIdList;
-    public List<Integer> top20NRDocIdList;
-    public List<Integer> rDocOriginalRank;
-    public List<Integer> nrDocOriginalRank;
     public List<String> stopWords;
-    public List<String> rTermsLists;
-    public List<Integer> docOriginalRank;
 
     String method;
     int termNum = 200; //Rocchio term number
@@ -79,27 +73,35 @@ public class QueryExpansion {
         this.similarity = similarity;
 
         top20RDocList = new ArrayList<>();
-        top20NRDocList = new ArrayList<>();
         top20RDocIdList = new ArrayList<>();
-        top20NRDocIdList = new ArrayList<>();
-        rDocOriginalRank = new ArrayList<>();
-        nrDocOriginalRank = new ArrayList<>();
         expandedTerms = new Vector<>();
         expansionList = new LinkedHashMap<>();
         stopWords = FileUtils.getStopWords();
-        rTermsLists = new ArrayList<>();
 
     }
 
     public Query expandQuerySun(String queryStr, TopDocs hits, boolean flag) throws QueryNodeException, IOException, ParseException {
 
-        docOriginalRank = new ArrayList<>();
-
-        //get top 20 relevant document and top 20 non-relevant document
-        getTopDoc(hits, flag);
 
         //get Docs to be used in query expansion
-        Vector<Document> vHits = getDocs(hits, docOriginalRank);
+        Vector<Document> vHits = getDocs(queryStr, hits);
+
+        // get top 20 relevant document
+        ScoreDoc[] scoreDoc = hits.scoreDocs;
+        Document doc;
+        String docNo;
+
+        int top20 = 20;
+        if (scoreDoc.length < top20)
+            top20 = scoreDoc.length;
+
+        for (int i = 0; i < top20; i++) {
+            doc = searcher.doc(scoreDoc[i].doc);
+            docNo = doc.get("DOCNO");
+
+            top20RDocList.add(docNo);
+            top20RDocIdList.add(scoreDoc[i].doc);
+        }
 
         //Load Necessary Values from Properties
         float alpha = Float.valueOf(prop.getProperty(QueryExpansion.ROCCHIO_ALPHA_FLD)).floatValue();
@@ -120,40 +122,10 @@ public class QueryExpansion {
         //combine weights according to expansion formula
         //combine queryTerm and docsTerm boosts
         Vector<TermQuery> expandedQueryTerms = combineOrNot(queryTerms, docsTerms, flag);
-
-        //store relevant terms
-        if (flag) {
-            for (int i = 0; i < expandedQueryTerms.size(); i++) {
-                String[] rterm = expandedQueryTerms.get(i)
-                        .toString(Defs.FIELD).replace("^", ",").split(",");
-                rTermsLists.add(rterm[0]);
-            }
-            //put querystring into rTermsLists
-            String querytmp = queryStr.toLowerCase();
-            String[] queryStringSplit = querytmp.split(" ");
-            for (int j = 0; j < queryStringSplit.length; j++) {
-                if (!rTermsLists.contains(queryStringSplit[j])) {
-                    rTermsLists.add(queryStringSplit[j]);
-                }
-            }
-        }
-        //remove relevant terms from non-relevant terms
-        else {
-            for (int i = 0, size = expandedQueryTerms.size(); i < size; i++) {
-                String[] nrterm = expandedQueryTerms.get(i)
-                        .toString(Defs.FIELD).replace("^", ",").split(",");
-                if (rTermsLists.contains(nrterm[0])) {
-                    expandedQueryTerms.remove(i);
-                    i--;
-                    size--;
-                }
-            }
-        }
+        setExpandedTerms(expandedQueryTerms);
 
         Comparator<Object> comparator = new QueryBoostComparator();
         Collections.sort(expandedQueryTerms, comparator);
-
-        setExpandedTerms(expandedQueryTerms);
 
         //get top 20 terms
         boolean reExport = false;
@@ -271,7 +243,6 @@ public class QueryExpansion {
     }
 
     private void calculateCoOccurrencePairSemanticRelation(List<Pair> coOccurrencePairs) throws IOException {
-        float ngdExpectation = 0.7f;
 
         for (int i = 0; i < coOccurrencePairs.size(); i++) {
             String term1 = coOccurrencePairs.get(i).getTerm1();
@@ -280,65 +251,23 @@ public class QueryExpansion {
             if (expansionList.containsKey(term1) || expansionList.containsKey(term2)) {
                 addExpandedTerms(term1, coOccurrencePairBoost);
                 addExpandedTerms(term2, coOccurrencePairBoost);
-            } else {
-                // calculate NGD
-                for (Map.Entry<String, Float> entry : expansionList.entrySet()) {
-                    String key = entry.getKey();
-                    if (GoogleSearch.calculateDistance(term1, key) < ngdExpectation) {
-                        addExpandedTerms(term1, coOccurrencePairBoost);
-                        addExpandedTerms(term2, coOccurrencePairBoost);
-                        break;
-                    }
-                    if (GoogleSearch.calculateDistance(term2, key) < ngdExpectation) {
-                        addExpandedTerms(term1, coOccurrencePairBoost);
-                        addExpandedTerms(term2, coOccurrencePairBoost);
-                        break;
-                    }
-                }
             }
         }
     }
 
-    public Vector<Document> getDocs(TopDocs hits, List<Integer> DocOriginalRank) throws IOException {
-        Vector<Document> vHits = new Vector<>();
+    private Vector<Document> getDocs(String query, TopDocs hits) throws IOException {
+        Vector<Document> vHits = new Vector<Document>();
         // Extract only as many docs as necessary
         int docNum = Integer.valueOf(prop.getProperty(QueryExpansion.DOC_NUM_FLD)).intValue();
 
         // Convert Hits -> Vector
-        for (int i = 0; ((i < docNum) && (i < hits.scoreDocs.length) && (i < DocOriginalRank.size())); i++) {
-            vHits.add(searcher.doc(hits.scoreDocs[DocOriginalRank.get(i)].doc));
+        for (int i = 0; ((i < docNum) && (i < hits.scoreDocs.length)); i++) {
+            vHits.add(searcher.doc(hits.scoreDocs[i].doc));
         }
 
         return vHits;
     }
 
-    public void getTopDoc(TopDocs hits, boolean flag) throws IOException {
-
-        ScoreDoc[] scoreDocs = hits.scoreDocs;
-        List<String> rList;
-        rList = FileUtils.getRelevantDocList(querynumber);
-
-        Document doc;
-        String docNo;
-        if (flag) {
-            for (int i = 0; i < scoreDocs.length; i++) {
-                doc = searcher.doc(scoreDocs[i].doc);
-                docNo = doc.get("DOCNO");
-
-                if (rList.contains(docNo) && top20RDocIdList.size() < 20) {
-                    this.top20RDocList.add(docNo);
-                    this.top20RDocIdList.add(scoreDocs[i].doc);
-                    this.rDocOriginalRank.add(i);
-                } else if (!rList.contains(docNo) && top20NRDocIdList.size() < 20) {
-                    this.top20NRDocList.add(docNo);
-                    this.top20NRDocIdList.add(scoreDocs[i].doc);
-                    this.nrDocOriginalRank.add(i);
-                }
-            }
-            docOriginalRank = rDocOriginalRank;
-        } else
-            docOriginalRank = nrDocOriginalRank;
-    }
 
     public Vector<QueryTermVector> getDocsTerms(Vector<Document> hits, int docsRelevantCount) throws IOException {
         Vector<QueryTermVector> docsTerms = new Vector<QueryTermVector>();
